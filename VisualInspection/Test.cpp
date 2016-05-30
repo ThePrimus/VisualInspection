@@ -9,7 +9,6 @@ int main() {
 
 	VideoCapture cap;
 	cap.open(0);
-	VideoCapture cp;
 
 	namedWindow("window", 1);
 	while (1) {
