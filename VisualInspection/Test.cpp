@@ -5,8 +5,6 @@ using namespace cv;
 int main() {
 	//short camera test in opencv
 	Mat img;
-
-
 	VideoCapture cap;
 	cap.open(0);
 
