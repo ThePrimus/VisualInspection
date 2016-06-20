@@ -1,9 +1,6 @@
 #include "CircleDetection.h"
 
 
-using namespace cv;
-using namespace std;
-
 
 CircleDetection::CircleDetection()
 {
@@ -30,16 +27,16 @@ void CircleDetection::findCircles()
 	cv::Mat imgTemp;
 
 	/// Convert it to gray
-	cvtColor(img_, imgTemp, CV_BGR2GRAY);
+	cv::cvtColor(img_, imgTemp, CV_BGR2GRAY);
 
 	// Filter picture
 	cv::threshold(imgTemp, imgTemp, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
 
 	// Blur it for better Hough Transformation
-	GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
 
 	// Apply the Hough Transform to find the circles
-	HoughCircles(imgTemp, circles_, HOUGH_GRADIENT, 1, 20, 100, 25, 1, 0);
+	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 20, 100, 25, 1, 0);
 }
 
 cv::Mat CircleDetection::drawCircles()
@@ -52,9 +49,9 @@ cv::Mat CircleDetection::drawCircles()
 		cv::Point center(cvRound(circles_[i][0]), cvRound(circles_[i][1]));
 		int radius = cvRound(circles_[i][2]);
 		// circle center
-		circle(imgTemp, center, 3, cv::Scalar(0, 230, 0), -1, 8, 0);
+		cv::circle(imgTemp, center, 3, cv::Scalar(0, 230, 0), -1, 8, 0);
 		// circle outline
-		circle(imgTemp, center, radius, cv::Scalar(0, 230, 0), 2, 8, 0);
+		cv::circle(imgTemp, center, radius, cv::Scalar(0, 230, 0), 2, 8, 0);
 	}
 	return imgTemp;
 }
