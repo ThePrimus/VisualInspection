@@ -21,9 +21,15 @@
     <ClCompile Include="detect_quad.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="CircleDetection.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="detect_quad.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="CircleDetection.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
