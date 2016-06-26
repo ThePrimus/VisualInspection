@@ -17,7 +17,7 @@ using namespace std;
 
 int main(int argc, char* argv[]) {
 
-	Mat workpiece;
+	Mat workpiece, canny, edges, removed_circles, outline;
 	char* window_name = "Damage Detection";
 	bool error = false;
 	RotatedRect rect;
@@ -26,6 +26,7 @@ int main(int argc, char* argv[]) {
 	//quad detection
 	loadImage(&workpiece);
 	detect_quad(workpiece, 0.0125, 0.2, 2, 50, 8, &rect);
+
 
 	//circle detection
 	loadImage(&workpiece);
@@ -38,10 +39,11 @@ int main(int argc, char* argv[]) {
 
 	namedWindow("Circles", WINDOW_NORMAL);
 	imshow("Circles", imgWithDrawnCircles);
+	
 
 	//damage detection
 	loadImage(&workpiece);
-	error = detect_damage(&workpiece, 30, &rect, circles);
+	error = detect_damage(&workpiece, &rect, circles, 25, 8, 2, 3);
 
 	namedWindow(window_name, WINDOW_NORMAL);
 	imshow(window_name, workpiece);

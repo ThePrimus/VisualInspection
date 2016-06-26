@@ -9,11 +9,12 @@ using namespace cv;
 using namespace std;
 
 void loadImage(Mat* image) {
-	*image = imread("C:/Users/ich/Documents/Praktikum IPR/VisualInspection/VisualInspection/Renderings/Werkstück perfekt.png");
-	//*image = imread("C:/Users/ich/Documents/Praktikum IPR/VisualInspection/VisualInspection/Images/Image-1.png");
-	//*image = imread("C:/Users/ich/Documents/Praktikum IPR/VisualInspection/VisualInspection/Renderings/Werkstück abgebrochene Ecke.png");
-	//*image = imread("C:/Users/ich/Documents/Praktikum IPR/VisualInspection/VisualInspection/Renderings/Werkstück kaputter Steg.png");
-	//*image = imread("C:/Users/ich/Documents/Praktikum IPR/VisualInspection/VisualInspection/Renderings/Werkstück Kratzer und Delle.png");
+	//*image = imread("Renderings/Werkstück perfekt.png");
+	//*image = imread("Images/Image-2.png");
+	*image = imread("Renderings/Werkstück abgebrochene Ecke.png");
+	//*image = imread("Renderings/Werkstück kaputter Steg.png");
+	//*image = imread("Renderings/Werkstück Kratzer und Delle.png");
+
 }
 
 void bilateral_filter(Mat in, Mat* out) {
@@ -42,14 +43,14 @@ void canny_detection(Mat* in, Mat* out, int threshold, bool dilate_output = fals
 
 }
 
-void remove_edges(Mat in, Mat* out, RotatedRect* rect) {
+void remove_edges(Mat in, Mat* out, RotatedRect* rect, int rectangle_line_size) {
 	Mat drawn_rect(in.rows, in.cols, CV_8UC1, Scalar(0, 0, 0));
 
 	Point2f points[4];
 	rect->points(points);
 
 	for (int i = 0; i < 4; i++) {
-		line(drawn_rect, points[i], points[(i + 1) % 4], Scalar(255, 255, 255), 5);
+		line(drawn_rect, points[i], points[(i + 1) % 4], Scalar(255, 255, 255), rectangle_line_size);
 	}
 
 	subtract(in, drawn_rect, *out);
@@ -58,39 +59,24 @@ void remove_edges(Mat in, Mat* out, RotatedRect* rect) {
 	//imshow("rect", drawn_rect);
 }
 
-void remove_circles(Mat in, Mat* out, vector<Vec3f> circles) {
+void remove_circles(Mat in, Mat* out, vector<Vec3f> circles, int radius_extension) {
 	Mat drawn_circles(in.rows, in.cols, CV_8UC1, Scalar(0, 0, 0));
 
 	// Draw the circles detected
 	for (int i = 0; i < circles.size(); i++)
 	{
 		Point center(cvRound(circles[i][0]), cvRound(circles[i][1]));
-		int radius = cvRound(circles[i][2]);
+		int radius = cvRound(circles[i][2]) + radius_extension;
 		// circle outline
-		circle(drawn_circles, center, radius, Scalar(255, 255, 255), 6);
+		circle(drawn_circles, center, radius, Scalar(255, 255, 255), -1);
 	}
 
 	subtract(in, drawn_circles, *out);
 
-	//erode and dilate
-	/*int dilate_size = 2;
-	Mat element = getStructuringElement(MORPH_RECT,
-		Size(2 * dilate_size + 1, 2 * dilate_size + 1),
-		Point(dilate_size, dilate_size));
-
-	
-	dilate(*out, *out, element);
-	erode(*out, *out, element);*/
-	
-	
-
-	//namedWindow("circles", WINDOW_NORMAL);
-	//imshow("circles", *out);
-
-
 }
 
-int clusters(Mat* in, Mat* out) {
+int clusters(Mat* in, Mat* out, int min_size) {
+	int cluster_count = 0;
 	vector<Point> pts;
 	findNonZero(*in, pts);
 
@@ -117,14 +103,18 @@ int clusters(Mat* in, Mat* out) {
 	}
 
 	for (int i = 0; i < labels_count; i++) {
-		rectangle(*out, boundingRect(contours[i]), Vec3b(0, 255, 0), 2);
+		if (contours[i].size() >= min_size) {
+			rectangle(*out, boundingRect(contours[i]), Vec3b(0, 255, 0), 1);
+			cluster_count++;
+		}
+			
 	}
 
-	return labels_count;
+	return cluster_count;
 }
 
 
-bool detect_damage(Mat* image, int threshold, RotatedRect* rect, vector<Vec3f> circles) {
+bool detect_damage(Mat* image, RotatedRect* rect, vector<Vec3f> circles, int threshold, int min_cluster_size, int rectangle_line_size, int radius_extension) {
 	Mat workpiece_filter, workpiece_canny, workpiece_dilate, output_image;
 
 	guided_filter(*image, &workpiece_filter);
@@ -132,11 +122,11 @@ bool detect_damage(Mat* image, int threshold, RotatedRect* rect, vector<Vec3f> c
 
 	canny_detection(&workpiece_filter, &workpiece_canny, threshold);
 
-	remove_edges(workpiece_canny, &workpiece_canny, rect);
+	remove_edges(workpiece_canny, &workpiece_canny, rect, rectangle_line_size);
 
-	remove_circles(workpiece_canny, &workpiece_canny, circles);
+	remove_circles(workpiece_canny, &workpiece_canny, circles, radius_extension);
 
-	int errors = clusters(&workpiece_canny, image);
+	int errors = clusters(&workpiece_canny, image, min_cluster_size);
 
 	if (errors > 0)
 		return true;

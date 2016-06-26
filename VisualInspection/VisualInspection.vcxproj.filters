@@ -24,12 +24,24 @@
     <ClCompile Include="CircleDetection.cpp">
       <Filter>Quelldateien</Filter>
     </ClCompile>
+    <ClCompile Include="damage_detection.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
+    <ClCompile Include="guidedfilter.cpp">
+      <Filter>Quelldateien</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="detect_quad.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
     <ClInclude Include="CircleDetection.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="damage_detection.h">
+      <Filter>Headerdateien</Filter>
+    </ClInclude>
+    <ClInclude Include="guidedfilter.h">
       <Filter>Headerdateien</Filter>
     </ClInclude>
   </ItemGroup>
