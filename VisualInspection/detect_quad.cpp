@@ -65,7 +65,7 @@ void draw_rotated_rect(Mat out, const RotatedRect& rect, Scalar color) {
 	Point2f points[4];
 	rect.points(points);
 	for (int i = 0; i < 4; i++) {
-		line(out, points[i], points[(i + 1) % 4], color);
+		line(out, points[i], points[(i + 1) % 4], color, 2);
 	}
 }
 
