@@ -6,7 +6,6 @@
 using namespace cv;
 using namespace std;
 
-void loadImage(Mat* image);
 void bilateral_filter(Mat in, Mat* out);
 void guided_filter(Mat in, Mat* out);
 void canny_detection(Mat* in, Mat* out, int threshold, bool dilate_output = false);

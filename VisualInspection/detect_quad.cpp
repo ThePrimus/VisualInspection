@@ -9,6 +9,8 @@
 using namespace cv;
 using namespace std;
 
+extern double PX2CM;
+
 auto rotatedrect_area(RotatedRect rect) {
 	return rect.size.area();
 }
@@ -22,7 +24,7 @@ bool check_quad_size(const RotatedRect& rect, const double px2cm, const double t
 		auto length_px = sqrt(diff_p.x * diff_p.x + diff_p.y * diff_p.y);
 		auto length_cm = length_px * px2cm;
 
-		if (abs(length_cm - side_length) > thresh_accuracy) {
+		if (abs(length_cm - side_length) < thresh_accuracy) {
 			return false;
 		}
 	}
@@ -47,7 +49,7 @@ bool detect_quad(Mat img, double px2cm, double thresh_accuracy, double alpha, do
 		auto cont = contours[0];
 		auto rect = minAreaRect(cont);
 
-		if (check_quad_size(rect, px2cm, thresh_accuracy, side_length)) {
+		if (check_quad_size(rect, PX2CM, thresh_accuracy, side_length)) {
 			if (out_rect)
 				*out_rect = minAreaRect(cont);
 			if (out_cont)

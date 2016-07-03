@@ -8,15 +8,6 @@
 using namespace cv;
 using namespace std;
 
-void loadImage(Mat* image) {
-	//*image = imread("Renderings/Werkstück perfekt.png");
-	//*image = imread("Images/Image-2.png");
-	*image = imread("Renderings/Werkstück abgebrochene Ecke.png");
-	//*image = imread("Renderings/Werkstück kaputter Steg.png");
-	//*image = imread("Renderings/Werkstück Kratzer und Delle.png");
-
-}
-
 void bilateral_filter(Mat in, Mat* out) {
 	int MAX_KERNEL_LENGTH = 31;
 	for (int i = 1; i < MAX_KERNEL_LENGTH; i = i + 2)
