@@ -11,7 +11,7 @@ using namespace std;
 
 auto rotatedrect_area(RotatedRect rect);
 bool check_quad_size(const RotatedRect& rect, const double px2cm, const double thresh_accuracy, const double side_length);
-bool detect_quad(Mat img, double px2cm, double thresh_accuracy, double alpha, double beta, double side_length, RotatedRect* out_rect = NULL, vector<Point>* out_cont = NULL);
+bool detect_quad(Mat img, double thresh_accuracy, double alpha, double beta, double side_length, RotatedRect* out_rect = NULL, vector<Point>* out_cont = NULL);
 
 
 void draw_rotated_rect(Mat out, const RotatedRect& rect, Scalar color);

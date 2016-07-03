@@ -13,8 +13,8 @@ using namespace cv;
 
 char* window_name = "Visual Inspection";
 
-bool IS_CALIBRATED = false;
-double PX2CM = 0.0;
+bool IS_CALIBRATED = true;
+double PX2CM = 0.0125;
 
 void test_image(Mat img);
 double calibrate_px2cm(Mat in, double calibration_length = 1.0);
@@ -24,16 +24,17 @@ int main(int argc, char* argv[]) {
 	namedWindow(window_name, WINDOW_NORMAL);
 
 	bool test_from_filepath = true;
-	//string filepath = "Renderings/Werkstück kaputter Steg.png";
+	string filepath = "Renderings/Werkstück kaputter Steg.png";
 	//string filepath = "Renderings/Calibration-1.png";
-	string filepath = "Images/Neue Beleuchtung/resized/Perfekt2.png";
+	//string filepath = "Images/Neue Beleuchtung/resized/Perfekt2.png";
 	Mat source_image = imread(filepath);
 
 
 	int CAMERA_INDEX = 0;
 	VideoCapture cap(CAMERA_INDEX);
 
-	cout << "Controls: <c> to calibrate the system, <t> to test the image displayed in the window, <e> to exit" << endl;
+	cout << "Controls: <c> to calibrate the system" << endl << "<t> to test the image displayed in the window" << endl << "<e> to exit" << endl;
+	cout << "After testing / calibration is done, press any key to read the next image (only works for webcam build)" << endl;
 
 	while (cap.isOpened() || test_from_filepath) {
 		Mat image_to_test;
@@ -72,7 +73,6 @@ int main(int argc, char* argv[]) {
 				cout << "==========" << endl;
 				cout << "Warning: calibration failed!" << endl;
 			}
-			continue;
 		}
 		if (key == 't') {
 			if (!IS_CALIBRATED) {
@@ -99,7 +99,7 @@ void test_image(Mat img) {
 	cout << "==========" << endl;
 	//quad detection
 	Mat workpiece = img;
-	bool result_quad_detect = detect_quad(workpiece, 0.0125, 0.2, 2, 50, 8, &rect);
+	bool result_quad_detect = detect_quad(workpiece, 0.2, 2, 50, 8, &rect);
 	cout << "Quad detection: " << (result_quad_detect ? "OK" : "FAILED") << endl;
 
 	//circle detection

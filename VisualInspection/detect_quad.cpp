@@ -31,7 +31,7 @@ bool check_quad_size(const RotatedRect& rect, const double px2cm, const double t
 	return true;
 }
 
-bool detect_quad(Mat img, double px2cm, double thresh_accuracy, double alpha, double beta, double side_length, RotatedRect* out_rect = NULL, vector<Point>* out_cont = NULL) {
+bool detect_quad(Mat img, double thresh_accuracy, double alpha, double beta, double side_length, RotatedRect* out_rect = NULL, vector<Point>* out_cont = NULL) {
 	using Pvec = vector<Point>;
 	Mat canny_output;
 	vector<Pvec> contours;

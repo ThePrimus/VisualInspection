@@ -71,8 +71,6 @@ int clusters(Mat* in, Mat* out, int min_size) {
 	vector<Point> pts;
 	findNonZero(*in, pts);
 
-	cout << "pts: " << pts.size() << endl;
-
 	if (pts.size() == 0) {
 		return 0;
 	}
