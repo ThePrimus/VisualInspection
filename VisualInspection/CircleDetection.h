@@ -17,7 +17,7 @@ public:
 	void setRotatedRect(cv::RotatedRect rotetedRect);
 	std::vector<cv::Vec3f>  getCircles();
 	double pixelsToMM(int pixels);
-	int mmToPixels(double mm);
+	double mmToPixels(double mm);
 	cv::Point2f getPositionOfOuterCircle(cv::Point2f center, cv::Point2f circleCenter);
 	cv::Point2f getPositionOfInnerCircles(int x, int y);
 	int findClosestCirlce(cv::Point2f calculatedPosition);

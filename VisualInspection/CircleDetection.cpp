@@ -54,10 +54,12 @@ void CircleDetection::findCircles()
 	cv::Mat imgTemp;
 
 	/// Convert it to gray
+	
 	cv::cvtColor(img_, imgTemp, CV_BGR2GRAY);
-
 	// Filter picture
-	cv::threshold(imgTemp, imgTemp, 0, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
+
+
+	cv::threshold(imgTemp, imgTemp, 0, 250, CV_THRESH_BINARY | CV_THRESH_OTSU);
 
 	// Blur it for better Hough Transformation
 	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
@@ -143,7 +145,7 @@ double CircleDetection::pixelsToMM(int pixels) {
 	return pixels / pixelConversion_;
 }
 
-int CircleDetection::mmToPixels(double mm) {
+double CircleDetection::mmToPixels(double mm) {
 	return mm*pixelConversion_;
 }
 
@@ -393,7 +395,7 @@ void CircleDetection::checkCircles()
 	for (int i = 0; i < foundCircles.size(); i++) {
 		int id = foundCircles[i];
 		if (id == -1) {
-			correctOutsideCircles_[0] = false;
+			correctOutsideCircles_[i] = false;
 			isCorrect_ = false;
 			continue;
 		}
