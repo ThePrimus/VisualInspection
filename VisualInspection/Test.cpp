@@ -105,10 +105,19 @@ void test_image(Mat img) {
 	//circle detection
 	workpiece = img;
 	bool result_circle_detection = true;
+	double conversion = 0.1 / PX2CM; // 1mm in pixel
+	cd.setPixelConversion(conversion);
 	cd.setRotatedRect(rect);
 	cd.setImage(workpiece);
 	cd.findCircles();
-
+	cd.calculateExpectedCirclePositions();
+	cd.checkCircles();
+	result_circle_detection = cd.isModelCorrect();
+	
+	cv::Mat errors = cd.drawErrors();
+	imshow("error picture", errors);
+	waitKey(0);
+	
 	std::vector<cv::Vec3f> circles = cd.getCircles();
 	//cv::Mat imgWithDrawnCircles = cd.drawCircles();
 	cout << "Circle detection: " << (result_circle_detection ? "OK" : "FAILED") << endl;
