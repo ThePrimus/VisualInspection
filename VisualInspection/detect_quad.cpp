@@ -23,8 +23,8 @@ bool check_quad_size(const RotatedRect& rect, const double px2cm, const double t
 		auto diff_p = rect_points[i] - rect_points[(i + 1) % 4];
 		auto length_px = sqrt(diff_p.x * diff_p.x + diff_p.y * diff_p.y);
 		auto length_cm = length_px * px2cm;
-
-		if (abs(length_cm - side_length) > thresh_accuracy) {
+		auto abs_length_diff = abs(length_cm - side_length);
+		if (abs_length_diff > thresh_accuracy) {
 			return false;
 		}
 	}
@@ -37,7 +37,7 @@ bool detect_quad(Mat img, double thresh_accuracy, double alpha, double beta, dou
 	vector<Pvec> contours;
 	vector<Vec4i> hierarchy;
 
-	img.convertTo(img, -1, alpha, beta);
+	//img.convertTo(img, -1, alpha, beta);
 	/// Detect edges using canny
 	auto tresh = 100;
 	Canny(img, canny_output, tresh, tresh * 2, 3);
@@ -57,6 +57,9 @@ bool detect_quad(Mat img, double thresh_accuracy, double alpha, double beta, dou
 
 			return true;
 		}
+		else {
+			return false;
+		}
 	}
 	else {
 		return false;
@@ -67,14 +70,14 @@ void draw_rotated_rect(Mat out, const RotatedRect& rect, Scalar color) {
 	Point2f points[4];
 	rect.points(points);
 	for (int i = 0; i < 4; i++) {
-		line(out, points[i], points[(i + 1) % 4], color, 2);
+		line(out, points[i], points[(i + 1) % 4], color, 1);
 	}
 }
 
 void draw_contour(Mat out, const vector<Point>& contour, Scalar color) {
 	vector<vector<Point> > contour_list;
 	contour_list.push_back(contour);
-	drawContours(out, contour_list, 0, color);
+	drawContours(out, contour_list, 0, color, 1);
 }
 
 void draw_quad_info(Mat out, RotatedRect* rect, Scalar rect_color, vector<Point>* cont, Scalar cont_color) {
