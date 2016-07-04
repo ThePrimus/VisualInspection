@@ -20,7 +20,7 @@ double PX2CM = 0.0125;
 
 const bool test_from_filepath = true;
 const bool test_test_routine = false;
-const string filepath = "Images/Neue Beleuchtung/resized/Perfekt2.png";
+const string filepath = "Images/Neue Beleuchtung/resized/KaputterSteg1.png";
 const string calibration_image = "Images/Neue Beleuchtung/resized/Kalibrierung1.png";
 const double calibration_value = 2.0;
 const string IMAGE_FOLDER = "./Images/Neue Beleuchtung/resized";
@@ -164,6 +164,7 @@ void test_image(Mat img, bool show) {
 				}
 			}
 		} else {
+			draw_quad_info(workpiece, &rect, Scalar(255, 0, 0), NULL, Scalar(0, 0, 0));
 			imshow(window_name, workpiece);
 			waitKey(0);
 		}
@@ -239,18 +240,25 @@ void test_routine(string image_folder, string output_path) {
 	std::ofstream out(output_path);
 	std::streambuf *coutbuf = std::cout.rdbuf(); //save old buf
 	std::cout.rdbuf(out.rdbuf()); //redirect std::cout to out.txt!
-
+	cout << "START TEST ROUTINE OF FOLDER: " << image_folder << endl;
+	cout << "------------------------------" << endl;
 	// calibrate
 	Mat image_to_test = imread(calibration_image);
 	PX2CM = calibrate_px2cm(image_to_test, calibration_value);
 	IS_CALIBRATED = true;
-
-	for (auto file : file_names) {
-		string file_path = image_folder + "/" + file;
-		cout << "----------" << endl;
-		cout << file_path << endl;
-		test_image(imread(file_path), false);
+	try {
+		for (auto file : file_names) {
+			string file_path = image_folder + "/" + file;
+			cout << "----------" << endl;
+			cout << file_path << endl;
+			test_image(imread(file_path), false);
+		}
 	}
-
+	catch (cv::Exception e) {
+		cout << "PROGRAMM UNEXPECTEDLY TERMINATED!!" << endl;
+		cout << e.what() << endl;
+		cout << "==================================" << endl;
+	}
+	cout << "TEST ROUTINE DONE, RESULT STORED IN: " << output_path << endl;
 	std::cout.rdbuf(coutbuf); //redirect std::cout to origin
 }

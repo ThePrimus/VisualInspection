@@ -31,13 +31,16 @@ bool check_quad_size(const RotatedRect& rect, const double px2cm, const double t
 	return true;
 }
 
-bool detect_quad(Mat img, double thresh_accuracy, double alpha, double beta, double side_length, RotatedRect* out_rect = NULL, vector<Point>* out_cont = NULL) {
+bool detect_quad(Mat in, double thresh_accuracy, double alpha, double beta, double side_length, RotatedRect* out_rect = NULL, vector<Point>* out_cont = NULL) {
 	using Pvec = vector<Point>;
 	Mat canny_output;
 	vector<Pvec> contours;
 	vector<Vec4i> hierarchy;
 
-	//img.convertTo(img, -1, alpha, beta);
+	Mat img;
+	cv::cvtColor(in, img, CV_BGR2GRAY);
+
+	img.convertTo(img, -1, alpha, beta);
 	/// Detect edges using canny
 	auto tresh = 100;
 	Canny(img, canny_output, tresh, tresh * 2, 3);
@@ -49,12 +52,12 @@ bool detect_quad(Mat img, double thresh_accuracy, double alpha, double beta, dou
 		auto cont = contours[0];
 		auto rect = minAreaRect(cont);
 
-		if (check_quad_size(rect, PX2CM, thresh_accuracy, side_length)) {
-			if (out_rect)
-				*out_rect = minAreaRect(cont);
-			if (out_cont)
-				*out_cont = cont;
+		if (out_rect)
+			*out_rect = minAreaRect(cont);
+		if (out_cont)
+			*out_cont = cont;
 
+		if (check_quad_size(rect, PX2CM, thresh_accuracy, side_length)) {
 			return true;
 		}
 		else {
