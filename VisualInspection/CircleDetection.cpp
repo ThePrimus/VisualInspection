@@ -14,7 +14,7 @@ CircleDetection::CircleDetection()
 {
 	bigCirlceSize_ = 7 / 2; // in mm
 	smallCirlceSize_ = 5 / 2; // in mm
-	toleranceValue_ = 1; // in mm
+	toleranceValue_ = 2; // in mm
 	circleAmount_ = 6;
 }
 
