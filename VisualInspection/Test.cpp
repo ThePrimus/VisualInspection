@@ -24,9 +24,10 @@ int main(int argc, char* argv[]) {
 	namedWindow(window_name, WINDOW_NORMAL);
 
 	bool test_from_filepath = true;
-	string filepath = "Renderings/Werkstück kaputter Steg.png";
+	//string filepath = "Renderings/Werkstück kaputter Steg.png";
 	//string filepath = "Renderings/Calibration-1.png";
-	//string filepath = "Images/Neue Beleuchtung/resized/Perfekt2.png";
+	string filepath = "Images/Neue Beleuchtung/resized/Perfekt2.png";
+	string calibration_image = "Images/Neue Beleuchtung/resized/Kalibrierung1.png";
 	Mat source_image = imread(filepath);
 
 
@@ -63,7 +64,11 @@ int main(int argc, char* argv[]) {
 		}
 
 		if (key == 'c') {
-			PX2CM = calibrate_px2cm(image_to_test);
+			// set calibration image
+			if (test_from_filepath)
+				image_to_test = imread(calibration_image);
+
+			PX2CM = calibrate_px2cm(image_to_test, 2.0);
 			if (PX2CM > 0) {
 				cout << "==========" << endl;
 				cout << "System calibrated with value: " << PX2CM << endl;
@@ -95,15 +100,15 @@ int main(int argc, char* argv[]) {
 void test_image(Mat img) {
 	RotatedRect rect;
 	CircleDetection cd;
+	std::vector<Point> contour;
 
 	cout << "==========" << endl;
 	//quad detection
 	Mat workpiece = img;
-	bool result_quad_detect = detect_quad(workpiece, 0.2, 2, 50, 8, &rect);
+	bool result_quad_detect = detect_quad(workpiece, 0.25, 2, 50, 8, &rect, &contour);
 	cout << "Quad detection: " << (result_quad_detect ? "OK" : "FAILED") << endl;
 
 	//circle detection
-	workpiece = img;
 	bool result_circle_detection = true;
 	cd.setRotatedRect(rect);
 	cd.setImage(workpiece);
@@ -114,24 +119,22 @@ void test_image(Mat img) {
 	cout << "Circle detection: " << (result_circle_detection ? "OK" : "FAILED") << endl;
 
 	//damage detection
-	workpiece = img;
 	bool result_damage_detection = !detect_damage(&workpiece, &rect, circles, 25, 8, 2, 3);
 	cout << "Damage detection: " << (result_damage_detection ? "OK" : "FAILED") << endl;
 
 	bool result_overall = result_quad_detect && result_circle_detection && result_damage_detection;
 	cout << "Overall result: " << (result_overall ? "OK" : "FAILED") << endl;
 
-	
 	imshow(window_name, workpiece);
 	waitKey(0);
 }
 
-double calibrate_px2cm(Mat in, double calibration_length) {
+double calibrate_px2cm(Mat img, double calibration_length) {
 	using Pvec = vector<Point>;
 	Mat canny_output;
 	vector<Pvec> contours;
 	vector<Vec4i> hierarchy;
-	Mat img = in; // copy
+
 	//img.convertTo(img, -1, 2.0, beta);
 	/// Detect edges using canny
 	auto tresh = 100;
