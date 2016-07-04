@@ -75,7 +75,7 @@ void CircleDetection::findCircles()
 
 cv::Mat CircleDetection::drawCircles()
 {
-	cv::Mat imgTemp = img_;
+	cv::Mat imgTemp = img_.clone();
 
 	/// Draw the circles detected
 	for (size_t i = 0; i < circles_.size(); i++)
@@ -93,7 +93,8 @@ cv::Mat CircleDetection::drawCircles()
 
 cv::Mat  CircleDetection::drawErrors()
 {
-	cv::Mat imgTemp = img_;
+
+	cv::Mat imgTemp = img_.clone();
 	/// Draw the circles detected
 	for (size_t i = 0; i < circles_.size(); i++)
 	{
@@ -364,6 +365,10 @@ void CircleDetection::checkCircles()
 				sizeLeftTop = bigCirlceSizeInPixels;
 				sizeRightTop = smallCirlceSizeinPixels;
 			}
+			else {
+				sizeLeftTop = smallCirlceSizeinPixels;
+				sizeRightTop = bigCirlceSizeInPixels;
+			}
 			break;
 		}
 
@@ -372,6 +377,11 @@ void CircleDetection::checkCircles()
 			if (i < 2) {
 				sizeLeftTop = smallCirlceSizeinPixels;
 				sizeRightTop = bigCirlceSizeInPixels;
+			} 
+			else
+			{
+				sizeLeftTop = bigCirlceSizeInPixels;
+				sizeRightTop = smallCirlceSizeinPixels;
 			}
 			break;
 		}

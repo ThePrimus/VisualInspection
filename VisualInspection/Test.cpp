@@ -120,8 +120,7 @@ void test_image(Mat img) {
 	result_circle_detection = cd.isModelCorrect();
 	
 	cv::Mat errors = cd.drawErrors();
-	imshow("error picture", errors);
-	waitKey(0);
+
 	
 	std::vector<cv::Vec3f> circles = cd.getCircles();
 	//cv::Mat imgWithDrawnCircles = cd.drawCircles();
