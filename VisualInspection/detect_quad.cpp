@@ -24,7 +24,7 @@ bool check_quad_size(const RotatedRect& rect, const double px2cm, const double t
 		auto length_px = sqrt(diff_p.x * diff_p.x + diff_p.y * diff_p.y);
 		auto length_cm = length_px * px2cm;
 
-		if (abs(length_cm - side_length) < thresh_accuracy) {
+		if (abs(length_cm - side_length) > thresh_accuracy) {
 			return false;
 		}
 	}
