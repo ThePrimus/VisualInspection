@@ -10,15 +10,25 @@
 #include "detect_quad.h"
 #include "CircleDetection.h"
 
+
+
+#include <uEye.h>
+#include <uEye_tools.h>
+#include <ueye_deprecated.h>
+#include <wchar.h>
+#include <locale.h>
+#include <stdlib.h>
+#include <stdio.h>
+
 using namespace std;
 using namespace cv;
 
 char* window_name = "Visual Inspection";
 
 bool IS_CALIBRATED = true;
-double PX2CM = 0.0125;
+double PX2CM = 0.00664624;
 
-const bool test_from_filepath = true;
+const bool test_from_filepath = false;
 const bool test_test_routine = false;
 //const string filepath = "Images/Neue Beleuchtung/resized/KaputterSteg1.png";
 const string filepath = "Images/Neue Beleuchtung/resized/Perfekt2.png";
@@ -46,14 +56,26 @@ int main(int argc, char* argv[]) {
 
 	namedWindow(window_name, WINDOW_NORMAL);
 
+	HIDS hCam = 0;
+	char* imgMem;
+	int memId;
+	if (is_InitCamera(&hCam, NULL) != IS_SUCCESS) {
+		return 0;
+	}
+
+	int img_width = 2048, img_height = 1536, img_bpp = 24, img_step, img_data_size;
+	is_AllocImageMem(hCam, img_width, img_height, img_bpp, &imgMem, &memId);
+	is_SetImageMem(hCam, imgMem, memId);
+	is_SetDisplayMode(hCam, IS_SET_DM_DIB);
+	is_SetColorMode(hCam, IS_CM_RGB8_PACKED);
+	is_SetImageSize(hCam, img_width, img_height);
+
 	Mat source_image = imread(filepath);
-	int CAMERA_INDEX = 0;
-	VideoCapture cap(CAMERA_INDEX);
 
 	cout << "Controls: <c> to calibrate the system" << endl << "<t> to test the image displayed in the window" << endl << "<e> to exit" << endl;
 	cout << "After testing / calibration is done, press any key to read the next image (only works for webcam build)" << endl;
 
-	while (cap.isOpened() || test_from_filepath) {
+	while (true) {
 		Mat image_to_test;
 		if (test_from_filepath) {
 
@@ -64,16 +86,18 @@ int main(int argc, char* argv[]) {
 			}
 
 		}
-		else if (cap.isOpened()) {
-			cap >> image_to_test;
-		}
-		else {
-			cout << "Error: webcam unavailable!" << endl;
-			break;
+		
+
+		if (is_FreezeVideo(hCam, IS_WAIT) == IS_SUCCESS) {
+			void *pMemVoid; //pointer to where the image is stored
+			is_GetImageMem(hCam, &pMemVoid);
+			cv::Mat img(img_height, img_width, CV_8UC3, pMemVoid);
+			cv::cvtColor(img, image_to_test, CV_RGB2GRAY);
 		}
 
 		imshow(window_name, image_to_test);
-		int key = waitKey(0);
+
+		int key = waitKey(30);
 
 		if (key == 'e')
 			break;
@@ -105,7 +129,7 @@ int main(int argc, char* argv[]) {
 			}
 			test_image(image_to_test);
 		}
-
+		
 	}
 
 	cout << "==========" << endl;
@@ -168,7 +192,7 @@ void test_image(Mat img, bool show) {
 				}
 			}
 		} else {
-			draw_quad_info(workpiece, &rect, Scalar(255, 0, 0), NULL, Scalar(0, 0, 0));
+			draw_quad_info(workpiece, &rect, Scalar(255, 0, 0), &contour, Scalar(0, 255, 0));
 			imshow(window_name, workpiece);
 			waitKey(0);
 		}
@@ -184,7 +208,7 @@ double calibrate_px2cm(Mat img, double calibration_length) {
 	vector<Pvec> contours;
 	vector<Vec4i> hierarchy;
 
-	//img.convertTo(img, -1, 2.0, beta);
+	//img.convertTo(img, -1, 2.0, 50);
 	/// Detect edges using canny
 	auto tresh = 100;
 	Canny(img, canny_output, tresh, tresh * 2, 3);

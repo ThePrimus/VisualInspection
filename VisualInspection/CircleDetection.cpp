@@ -52,10 +52,10 @@ std::vector<cv::Vec3f> CircleDetection::getCircles()
 void CircleDetection::findCircles()
 {
 	cv::Mat imgTemp;
-
+	img_.convertTo(imgTemp, -1);
 	/// Convert it to gray
 	
-	cv::cvtColor(img_, imgTemp, CV_BGR2GRAY);
+	//cv::cvtColor(img_, imgTemp, CV_BGR2GRAY);
 	// Filter picture
 
 
@@ -63,6 +63,9 @@ void CircleDetection::findCircles()
 
 	// Blur it for better Hough Transformation
 	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
+	cv::imshow("bla",imgTemp);
+	cv::waitKey(0);
+
 
 	// Apply the Hough Transform to find the circles
 	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 20, 100, 25, 1, 0);

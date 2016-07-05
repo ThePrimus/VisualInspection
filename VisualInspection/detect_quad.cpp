@@ -37,10 +37,11 @@ bool detect_quad(Mat in, double thresh_accuracy, double alpha, double beta, doub
 	vector<Pvec> contours;
 	vector<Vec4i> hierarchy;
 
-	Mat img;
-	cv::cvtColor(in, img, CV_BGR2GRAY);
+	Mat img = in;
+	//cv::cvtColor(in, img, CV_BGR2GRAY);
 
 	img.convertTo(img, -1, alpha, beta);
+
 	/// Detect edges using canny
 	auto tresh = 100;
 	Canny(img, canny_output, tresh, tresh * 2, 3);
@@ -80,7 +81,7 @@ void draw_rotated_rect(Mat out, const RotatedRect& rect, Scalar color) {
 void draw_contour(Mat out, const vector<Point>& contour, Scalar color) {
 	vector<vector<Point> > contour_list;
 	contour_list.push_back(contour);
-	drawContours(out, contour_list, 0, color, 1);
+	drawContours(out, contour_list, 0, color, 3);
 }
 
 void draw_quad_info(Mat out, RotatedRect* rect, Scalar rect_color, vector<Point>* cont, Scalar cont_color) {
