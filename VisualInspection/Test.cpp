@@ -20,7 +20,9 @@ double PX2CM = 0.0125;
 
 const bool test_from_filepath = true;
 const bool test_test_routine = false;
-const string filepath = "Images/Neue Beleuchtung/resized/KaputterSteg1.png";
+//const string filepath = "Images/Neue Beleuchtung/resized/KaputterSteg1.png";
+const string filepath = "Images/Neue Beleuchtung/resized/Perfekt2.png";
+//const string filepath = "Images/Neue Beleuchtung/resized/KaputteEcke1.png";
 const string calibration_image = "Images/Neue Beleuchtung/resized/Kalibrierung1.png";
 const double calibration_value = 2.0;
 const string IMAGE_FOLDER = "./Images/Neue Beleuchtung/resized";
@@ -122,13 +124,15 @@ void test_image(Mat img, bool show) {
 	bool result_circle_detection = false;
 	bool result_damage_detection = false;
 
+	bool check_everything = true;
+
 	cout << "==========" << endl;
 	//quad detection
 	Mat workpiece = img;
 	result_quad_detect = detect_quad(workpiece, 0.25, 2, 50, 8, &rect, &contour);
 	cout << "Quad detection: " << (result_quad_detect ? "OK" : "FAILED") << endl;
 
-	if (result_quad_detect) {
+	if (result_quad_detect || check_everything) {
 
 		//circle detection
 		double conversion = 0.1 / PX2CM; // 1mm in pixel
@@ -143,9 +147,9 @@ void test_image(Mat img, bool show) {
 		std::vector<cv::Vec3f> circles = cd.getCircles();
 		cout << "Circle detection: " << (result_circle_detection ? "OK" : "FAILED") << endl;
 
-		if (result_circle_detection) {
+		if (result_circle_detection || check_everything) {
 			//damage detection
-			bool result_damage_detection = !detect_damage(&workpiece, &rect, circles, 25, 8, 2, 3);
+			bool result_damage_detection = !detect_damage(&workpiece, rect, circles, 50, 8, 21, 12);
 			cout << "Damage detection: " << (result_damage_detection ? "OK" : "FAILED") << endl;
 		}
 	}

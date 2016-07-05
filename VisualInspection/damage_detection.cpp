@@ -3,6 +3,8 @@
 #include "opencv2/imgproc/imgproc.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "guidedfilter.h"
+#include "CircleDetection.h"
+#include "detect_quad.h"
 
 
 using namespace cv;
@@ -17,7 +19,7 @@ void bilateral_filter(Mat in, Mat* out) {
 }
 
 void guided_filter(Mat in, Mat* out) {
-	*out = guidedFilter(in, in, 4, 0.11 * 0.11 * 255 * 255);
+	*out = guidedFilter(in, in, 8, 0.11 * 0.11 * 255 * 255);
 }
 
 void canny_detection(Mat* in, Mat* out, int threshold, bool dilate_output = false) {
@@ -34,20 +36,16 @@ void canny_detection(Mat* in, Mat* out, int threshold, bool dilate_output = fals
 
 }
 
-void remove_edges(Mat in, Mat* out, RotatedRect* rect, int rectangle_line_size) {
+void remove_edges(Mat in, Mat* out, RotatedRect rect, int rectangle_line_size) {
 	Mat drawn_rect(in.rows, in.cols, CV_8UC1, Scalar(0, 0, 0));
 
 	Point2f points[4];
-	rect->points(points);
-
+	rect.points(points);
 	for (int i = 0; i < 4; i++) {
-		line(drawn_rect, points[i], points[(i + 1) % 4], Scalar(255, 255, 255), rectangle_line_size);
+		line(drawn_rect, points[i], points[(i + 1) % 4], Scalar(255,255,255), rectangle_line_size);
 	}
 
 	subtract(in, drawn_rect, *out);
-
-	//namedWindow("rect", WINDOW_NORMAL);
-	//imshow("rect", drawn_rect);
 }
 
 void remove_circles(Mat in, Mat* out, vector<Vec3f> circles, int radius_extension) {
@@ -76,7 +74,7 @@ int clusters(Mat* in, Mat* out, int min_size) {
 	}
 
 
-	int distance = 18;
+	int distance = 25;
 
 	vector<int> labels;
 
@@ -93,7 +91,13 @@ int clusters(Mat* in, Mat* out, int min_size) {
 
 	for (int i = 0; i < labels_count; i++) {
 		if (contours[i].size() >= min_size) {
-			rectangle(*out, boundingRect(contours[i]), Vec3b(0, 255, 0), 1);
+			Rect boundedRect = boundingRect(contours[i]);
+			//cout << "width: " << boundedRect.width << " height: " << boundedRect.height << endl;
+			boundedRect.x -= 10;
+			boundedRect.y -= 10;
+			boundedRect.width += 20;
+			boundedRect.height += 20;
+			rectangle(*out, boundedRect, Vec3b(0, 255, 0), 2);
 			cluster_count++;
 		}
 			
@@ -103,17 +107,25 @@ int clusters(Mat* in, Mat* out, int min_size) {
 }
 
 
-bool detect_damage(Mat* image, RotatedRect* rect, vector<Vec3f> circles, int threshold, int min_cluster_size, int rectangle_line_size, int radius_extension) {
+bool detect_damage(Mat* image, RotatedRect rect, vector<Vec3f> circles, int threshold, int min_cluster_size, int rectangle_line_size, int radius_extension) {
 	Mat workpiece_filter, workpiece_canny, workpiece_dilate, output_image;
 
-	guided_filter(*image, &workpiece_filter);
-	//bilateral_filter(*image, &workpiece_filter);
+	GaussianBlur(*image, workpiece_filter, Size(5,5), 10);
+	guided_filter(workpiece_filter, &workpiece_filter);
+
+	//namedWindow("filter", WINDOW_NORMAL);
+	//imshow("filter", workpiece_filter);
 
 	canny_detection(&workpiece_filter, &workpiece_canny, threshold);
+	//namedWindow("canny", WINDOW_NORMAL);
+	//imshow("canny", workpiece_canny);
 
 	remove_edges(workpiece_canny, &workpiece_canny, rect, rectangle_line_size);
 
 	remove_circles(workpiece_canny, &workpiece_canny, circles, radius_extension);
+
+	//namedWindow("removed", WINDOW_NORMAL);
+	//imshow("removed", workpiece_canny);
 
 	int errors = clusters(&workpiece_canny, image, min_cluster_size);
 
@@ -123,3 +135,4 @@ bool detect_damage(Mat* image, RotatedRect* rect, vector<Vec3f> circles, int thr
 		return false;
 
 }
+
