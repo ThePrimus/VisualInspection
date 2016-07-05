@@ -28,7 +28,7 @@ char* window_name = "Visual Inspection";
 bool IS_CALIBRATED = true;
 double PX2CM = 0.00664624;
 
-const bool test_from_filepath = false;
+const bool test_from_filepath = true;
 const bool test_test_routine = false;
 //const string filepath = "Images/Neue Beleuchtung/resized/KaputterSteg1.png";
 const string filepath = "Images/Neue Beleuchtung/resized/Perfekt2.png";
@@ -59,16 +59,16 @@ int main(int argc, char* argv[]) {
 	HIDS hCam = 0;
 	char* imgMem;
 	int memId;
-	if (is_InitCamera(&hCam, NULL) != IS_SUCCESS) {
+	int img_width = 2048, img_height = 1536, img_bpp = 24, img_step, img_data_size;
+
+	if (!test_from_filepath && (is_InitCamera(&hCam, NULL) != IS_SUCCESS)) {
+		is_AllocImageMem(hCam, img_width, img_height, img_bpp, &imgMem, &memId);
+		is_SetImageMem(hCam, imgMem, memId);
+		is_SetDisplayMode(hCam, IS_SET_DM_DIB);
+		is_SetColorMode(hCam, IS_CM_RGB8_PACKED);
+		is_SetImageSize(hCam, img_width, img_height);
 		return 0;
 	}
-
-	int img_width = 2048, img_height = 1536, img_bpp = 24, img_step, img_data_size;
-	is_AllocImageMem(hCam, img_width, img_height, img_bpp, &imgMem, &memId);
-	is_SetImageMem(hCam, imgMem, memId);
-	is_SetDisplayMode(hCam, IS_SET_DM_DIB);
-	is_SetColorMode(hCam, IS_CM_RGB8_PACKED);
-	is_SetImageSize(hCam, img_width, img_height);
 
 	Mat source_image = imread(filepath);
 
@@ -80,15 +80,13 @@ int main(int argc, char* argv[]) {
 		if (test_from_filepath) {
 
 			image_to_test = imread(filepath);
+			cv::cvtColor(image_to_test, image_to_test, CV_BGR2GRAY);
 			if (image_to_test.data == NULL) {
 				cout << "Error: can't open file <" << filepath << ">" << endl;
 				break;
 			}
 
-		}
-		
-
-		if (is_FreezeVideo(hCam, IS_WAIT) == IS_SUCCESS) {
+		} else if (is_FreezeVideo(hCam, IS_WAIT) == IS_SUCCESS) {
 			void *pMemVoid; //pointer to where the image is stored
 			is_GetImageMem(hCam, &pMemVoid);
 			cv::Mat img(img_height, img_width, CV_8UC3, pMemVoid);
