@@ -106,9 +106,48 @@ int clusters(Mat* in, Mat* out, int min_size) {
 	return cluster_count;
 }
 
+bool broken_bridge(Mat* image, RotatedRect rect) {
+	RotatedRect bridgeArea = RotatedRect(rect.center, Point2f(15, 15), rect.angle);
+
+	// matrices we'll use
+	Mat M, rotated, bridge, bridgeThreshold;
+	// get angle and size from the bounding box
+	float angle = bridgeArea.angle;
+	Size rect_size = bridgeArea.size;
+	if (bridgeArea.angle < -45.) {
+		angle += 90.0;
+		swap(rect_size.width, rect_size.height);
+	}
+	// get the rotation matrix
+	M = getRotationMatrix2D(bridgeArea.center, angle, 1.0);
+	// perform the affine transformation
+	warpAffine(*image, rotated, M, image->size(), INTER_CUBIC);
+	// crop the resulting image
+	getRectSubPix(rotated, rect_size, bridgeArea.center, bridge);
+	
+	threshold(bridge, bridgeThreshold, 50, 255, THRESH_BINARY);
+
+
+	int whitePixel = (int)sum(bridgeThreshold)[0] / 255;
+	int blackPixel = bridgeThreshold.rows * bridgeThreshold.cols - whitePixel;
+
+	//cout << "pixel: " << whitePixel << " " << blackPixel << endl;
+	
+	if (whitePixel < blackPixel) {
+		//draw error rect
+		Rect errorRect = Rect(Point2f(rect.center.x - 20, rect.center.y - 20), Size2f(40,40));
+		rectangle(*image, errorRect, Scalar(0, 255, 0), 2);
+		return true;
+	}
+	else
+		return false;
+}
 
 bool detect_damage(Mat* image, RotatedRect rect, vector<Vec3f> circles, int threshold, int min_cluster_size, int rectangle_line_size, int radius_extension) {
 	Mat workpiece_filter, workpiece_canny, workpiece_dilate, output_image;
+	bool error = false;
+
+	error = broken_bridge(image, rect);
 
 	GaussianBlur(*image, workpiece_filter, Size(5,5), 10);
 	guided_filter(workpiece_filter, &workpiece_filter);
@@ -130,9 +169,11 @@ bool detect_damage(Mat* image, RotatedRect rect, vector<Vec3f> circles, int thre
 	int errors = clusters(&workpiece_canny, image, min_cluster_size);
 
 	if (errors > 0)
-		return true;
-	else
-		return false;
+		error = true;
+	
+	return error;
 
 }
+
+
 

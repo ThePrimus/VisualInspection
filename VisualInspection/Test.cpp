@@ -30,9 +30,10 @@ double PX2CM = 0.00664624;
 
 const bool test_from_filepath = true;
 const bool test_test_routine = false;
-//const string filepath = "Images/Neue Beleuchtung/resized/KaputterSteg1.png";
-const string filepath = "Images/Neue Beleuchtung/resized/Perfekt2.png";
-//const string filepath = "Images/Neue Beleuchtung/resized/KaputteEcke1.png";
+const string filepath = "Images/Neue Beleuchtung/resized/KaputterSteg2.png";
+//const string filepath = "Images/Neue Beleuchtung/resized/Perfekt2.png";
+//const string filepath = "Images/Neue Beleuchtung/resized/circles_test.png";
+//const string filepath = "Images/Neue Beleuchtung/resized/KaputteEcke3.png";
 const string calibration_image = "Images/Neue Beleuchtung/resized/Kalibrierung1.png";
 const double calibration_value = 2.0;
 const string IMAGE_FOLDER = "./Images/Neue Beleuchtung/resized";
