@@ -58,23 +58,52 @@ void CircleDetection::findCircles()
 	//cv::cvtColor(img_, imgTemp, CV_BGR2GRAY);
 	// Filter picture
 
-	/*cv::namedWindow("Bla", CV_WINDOW_NORMAL);
+	cv::namedWindow("Bla", CV_WINDOW_NORMAL);
 	cv::imshow("Bla", img_);
 	cv::waitKey(0); 
 	cv::threshold(imgTemp, imgTemp, 0, 250, CV_THRESH_BINARY | CV_THRESH_OTSU);
-	cv::namedWindow("Bla", CV_WINDOW_NORMAL);
-	cv::imshow("Bla", imgTemp);
-	cv::waitKey(0);*/
-	// Blur it for better Hough Transformation
-	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-	/*cv::namedWindow("Bla", CV_WINDOW_NORMAL);
-	cv::imshow("Bla",imgTemp);
-	cv::waitKey(0);*/
 
+	cv::namedWindow("Bla", CV_WINDOW_NORMAL);
+	cv::imshow("Bla", img_);
+	cv::waitKey(0);
+
+	cv::Mat maskedImage; // stores masked Image
+	cv::Mat mask(imgTemp.size(), imgTemp.type());  // create an Mat that has same Dimensons as src
+	mask.setTo(cv::Scalar(255, 255, 255));                                            // creates black-Image
+																				// Add all found circles to mask
+
+	for(int i = 0; i < outsideCircles_.size(); i++)                          // iterate through all detected Circles
+	{
+		double mmMask = mmToPixels(bigCirlceSize_*3);
+		cv::Point2f pos = outsideCircles_[i];
+		cv::Point center(pos.x, pos.y); // CVRound converts floating numbers to integer
+		int radius = cvRound(mmMask);                              // Radius is the third parameter [i][0] = x [i][1]= y [i][2] = radius
+		cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);    // Circle(img, center, radius, color, thickness=1, lineType=8, shift=0)	
+}
+
+	for (int i = 0; i < centralCircles_.size(); i++)                          // iterate through all detected Circles
+	{
+		if (correctCenterCircles_ == false) {
+			continue;
+		}
+		double mmMask = mmToPixels(smallCirlceSize_*3);
+		cv::Point2f pos = centralCircles_[i];
+		cv::Point center(pos.x, pos.y); // CVRound converts floating numbers to integer
+		int radius = cvRound(mmMask);                              // Radius is the third parameter [i][0] = x [i][1]= y [i][2] = radius
+		cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);    // Circle(img, center, radius, color, thickness=1, lineType=8, shift=0)	
+	}
+
+	cv::bitwise_or(imgTemp, mask, imgTemp);
+
+	// Blur it for better Hough Transformation
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2); // vorher ImgTemp
+	cv::namedWindow("Bla", CV_WINDOW_NORMAL);
+	cv::imshow("Bla",imgTemp);
+	cv::waitKey(0);
 
 	// Apply the Hough Transform to find the circles
-	//cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 20, 100, 25, 1, 0);
-	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 20, 100, 25, 20, 300);
+	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 20, 100, 25, 1, 0);
+	//cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 20, 100, 25, 20, 300);
 
 	int size = circles_.size();
 
@@ -82,7 +111,7 @@ void CircleDetection::findCircles()
 	for (int i = 0; i < size; i++) {
 		correctCircles_.push_back(false);
 	}
-	correctCircles_.size();
+	std::cout << correctCircles_.size() << std::endl;
 }
 
 cv::Mat CircleDetection::drawCircles()
