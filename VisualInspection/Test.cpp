@@ -63,14 +63,16 @@ int main(int argc, char* argv[]) {
 	int img_width = 2048, img_height = 1536, img_bpp = 24, img_step, img_data_size;
 
 	if (!test_from_filepath && (is_InitCamera(&hCam, NULL) != IS_SUCCESS)) {
-		is_AllocImageMem(hCam, img_width, img_height, img_bpp, &imgMem, &memId);
-		is_SetImageMem(hCam, imgMem, memId);
-		is_SetDisplayMode(hCam, IS_SET_DM_DIB);
-		is_SetColorMode(hCam, IS_CM_RGB8_PACKED);
-		is_SetImageSize(hCam, img_width, img_height);
 		return 0;
 	}
-
+	if(!test_from_filepath)
+	{
+	is_AllocImageMem(hCam, img_width, img_height, img_bpp, &imgMem, &memId);
+	is_SetImageMem(hCam, imgMem, memId);
+	is_SetDisplayMode(hCam, IS_SET_DM_DIB);
+	is_SetColorMode(hCam, IS_CM_RGB8_PACKED);
+	is_SetImageSize(hCam, img_width, img_height);
+	}
 	Mat source_image = imread(filepath);
 
 	cout << "Controls: <c> to calibrate the system" << endl << "<t> to test the image displayed in the window" << endl << "<e> to exit" << endl;
