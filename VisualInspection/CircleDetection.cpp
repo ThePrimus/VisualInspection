@@ -14,7 +14,7 @@ CircleDetection::CircleDetection()
 {
 	bigCirlceSize_ = 7 / 2; // in mm
 	smallCirlceSize_ = 5 / 2; // in mm
-	toleranceValue_ = 1; // in mm
+	toleranceValue_ = 3; // in mm
 	circleAmount_ = 6;
 }
 
@@ -58,14 +58,15 @@ void CircleDetection::findCircles()
 	//cv::cvtColor(img_, imgTemp, CV_BGR2GRAY);
 	// Filter picture
 
-	cv::namedWindow("Bla", CV_WINDOW_NORMAL);
-	cv::imshow("Bla", img_);
-	cv::waitKey(0); 
-	cv::threshold(imgTemp, imgTemp, 0, 250, CV_THRESH_BINARY | CV_THRESH_OTSU);
+	//cv::namedWindow("Bla", CV_WINDOW_NORMAL);
+	//cv::imshow("Bla", img_);
+	//cv::waitKey(0); 
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
+	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
 
-	cv::namedWindow("Bla", CV_WINDOW_NORMAL);
-	cv::imshow("Bla", img_);
-	cv::waitKey(0);
+	//cv::namedWindow("thresh", CV_WINDOW_NORMAL);
+	//cv::imshow("thresh", imgTemp);
+	//cv::waitKey(0);
 
 	cv::Mat maskedImage; // stores masked Image
 	cv::Mat mask(imgTemp.size(), imgTemp.type());  // create an Mat that has same Dimensons as src
@@ -74,7 +75,7 @@ void CircleDetection::findCircles()
 
 	for(int i = 0; i < outsideCircles_.size(); i++)                          // iterate through all detected Circles
 	{
-		double mmMask = mmToPixels(bigCirlceSize_*3);
+		double mmMask = mmToPixels(mmToPixels(bigCirlceSize_)*3);
 		cv::Point2f pos = outsideCircles_[i];
 		cv::Point center(pos.x, pos.y); // CVRound converts floating numbers to integer
 		int radius = cvRound(mmMask);                              // Radius is the third parameter [i][0] = x [i][1]= y [i][2] = radius
@@ -86,7 +87,7 @@ void CircleDetection::findCircles()
 		if (correctCenterCircles_ == false) {
 			continue;
 		}
-		double mmMask = mmToPixels(smallCirlceSize_*3);
+		double mmMask = mmToPixels(mmToPixels(smallCirlceSize_)*3);
 		cv::Point2f pos = centralCircles_[i];
 		cv::Point center(pos.x, pos.y); // CVRound converts floating numbers to integer
 		int radius = cvRound(mmMask);                              // Radius is the third parameter [i][0] = x [i][1]= y [i][2] = radius
@@ -97,21 +98,22 @@ void CircleDetection::findCircles()
 
 	// Blur it for better Hough Transformation
 	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2); // vorher ImgTemp
-	cv::namedWindow("Bla", CV_WINDOW_NORMAL);
-	cv::imshow("Bla",imgTemp);
-	cv::waitKey(0);
+	//cv::namedWindow("Bla", CV_WINDOW_NORMAL);
+	//cv::imshow("Bla",imgTemp);
+	//cv::waitKey(0);
 
 	// Apply the Hough Transform to find the circles
-	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 20, 100, 25, 1, 0);
-	//cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 20, 100, 25, 20, 300);
+	//cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 20, 100, 25, 1, 0);
+	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
 
 	int size = circles_.size();
 
 	correctCircles_.clear();
 	for (int i = 0; i < size; i++) {
 		correctCircles_.push_back(false);
+		//std::cout << pixelsToMM(circles_[i][2]) << std::endl;
 	}
-	std::cout << correctCircles_.size() << std::endl;
+	//std::cout << correctCircles_.size() << std::endl;
 }
 
 cv::Mat CircleDetection::drawCircles()
@@ -124,9 +126,9 @@ cv::Mat CircleDetection::drawCircles()
 		cv::Point center(cvRound(circles_[i][0]), cvRound(circles_[i][1]));
 		int radius = cvRound(circles_[i][2]);
 		// circle center
-		cv::circle(imgTemp, center, 3, cv::Scalar(0, 230, 0), -1, 8, 0);
+		cv::circle(imgTemp, center, 3, cv::Scalar(255, 255, 255), -1, 8, 0);
 		// circle outline
-		cv::circle(imgTemp, center, radius, cv::Scalar(0, 230, 0), 2, 8, 0);
+		cv::circle(imgTemp, center, radius, cv::Scalar(255, 255, 255), 2, 8, 0);
 	}
 	return imgTemp;
 }
@@ -223,10 +225,12 @@ int CircleDetection::findClosestCirlce(cv::Point2f calculatedPosition)
 		double distTemp = euclidianDistance(calculatedPosition, circle);
 		if (distTemp < distance && distTemp <= toleranceValueInPixels) 
 		{
+			
 			distance = distTemp;
 			indexOfClosestCircle = i;
 		}
 	}
+	//std::cout << pixelsToMM(distance) << std::endl;
 	return indexOfClosestCircle;
 }
 

@@ -28,7 +28,7 @@ char* window_name = "Visual Inspection";
 bool IS_CALIBRATED = true;
 double PX2CM = 0.00664624;
 
-const bool test_from_filepath = true;
+const bool test_from_filepath = false;
 const bool test_test_routine = false;
 const string filepath = "Images/Neue Beleuchtung/resized/KaputterSteg2.png";
 //const string filepath = "Images/Neue Beleuchtung/resized/Perfekt2.png";
@@ -187,9 +187,9 @@ void test_image(Mat img, bool show) {
 	if (show) {
 		if (result_quad_detect) {
 			if (!result_circle_detection) {
-				//Mat circle_error = cd.drawErrors();
-				//imshow(window_name, circle_error);
-				//waitKey(0);
+				Mat circle_error = cd.drawErrors();
+				imshow(window_name, circle_error);
+				waitKey(0);
 			}
 			//else { // true!
 				if (!result_damage_detection) {
