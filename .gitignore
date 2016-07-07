@@ -210,3 +210,5 @@ FakesAssemblies/
 GeneratedArtifacts/
 _Pvt_Extensions/
 ModelManifest.xml
+/VisualInspection.VC.db
+/VisualInspection.VC.VC.opendb

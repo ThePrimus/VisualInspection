@@ -28,7 +28,7 @@ char* window_name = "Visual Inspection";
 bool IS_CALIBRATED = true;
 double PX2CM = 0.00664624;
 
-const bool test_from_filepath = true;
+const bool test_from_filepath = false;
 const bool test_test_routine = false;
 const string filepath = "Images/Neue Beleuchtung/resized/KaputterSteg2.png";
 //const string filepath = "Images/Neue Beleuchtung/resized/Perfekt2.png";
@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
 
 	namedWindow(window_name, WINDOW_NORMAL);
 
-	HIDS hCam = 0;
+	HIDS hCam = 1; // 0
 	char* imgMem;
 	int memId;
 	int img_width = 2048, img_height = 1536, img_bpp = 24, img_step, img_data_size;
@@ -78,6 +78,7 @@ int main(int argc, char* argv[]) {
 
 	while (true) {
 		Mat image_to_test;
+		cout << is_FreezeVideo(hCam, IS_WAIT) << endl;
 		if (test_from_filepath) {
 
 			image_to_test = imread(filepath);
@@ -94,8 +95,9 @@ int main(int argc, char* argv[]) {
 			cv::cvtColor(img, image_to_test, CV_RGB2GRAY);
 		}
 
-		imshow(window_name, image_to_test);
-
+		if (image_to_test.rows > 0) {
+			imshow(window_name, image_to_test);
+		}
 		int key = waitKey(30);
 
 		if (key == 'e')
