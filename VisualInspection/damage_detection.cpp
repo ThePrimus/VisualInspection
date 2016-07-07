@@ -74,7 +74,7 @@ int clusters(Mat* in, Mat* out, int min_size) {
 	}
 
 
-	int distance = 25;
+	int distance = 40;
 
 	vector<int> labels;
 
@@ -90,9 +90,14 @@ int clusters(Mat* in, Mat* out, int min_size) {
 	}
 
 	for (int i = 0; i < labels_count; i++) {
+		int whitePixelInCluster = 0;
+		for (int j = 0; j < contours[i].size(); i++) {
+			Point p = contours[i][j];
+			whitePixelInCluster += (int) in->at<double>(p.x, p.y);
+		}
 		if (contours[i].size() >= min_size) {
+			cout << "cluster size " << i << " : " << contours[i].size() << endl;
 			Rect boundedRect = boundingRect(contours[i]);
-			//cout << "width: " << boundedRect.width << " height: " << boundedRect.height << endl;
 			boundedRect.x -= 10;
 			boundedRect.y -= 10;
 			boundedRect.width += 20;
@@ -144,27 +149,44 @@ bool broken_bridge(Mat* image, RotatedRect rect) {
 }
 
 bool detect_damage(Mat* image, RotatedRect rect, vector<Vec3f> circles, int threshold, int min_cluster_size, int rectangle_line_size, int radius_extension) {
-	Mat workpiece_filter, workpiece_canny, workpiece_dilate, output_image;
+	Mat workpiece, workpiece_filter, workpiece_canny, workpiece_dilate, output_image;
 	bool error = false;
 
-	error = broken_bridge(image, rect);
+	image->convertTo(workpiece, -1, 1.5, 0);
 
-	GaussianBlur(*image, workpiece_filter, Size(5,5), 10);
+	namedWindow("brightness", WINDOW_NORMAL);
+	imshow("brightness", workpiece);
+
+	error = broken_bridge(&workpiece, rect);
+
+	GaussianBlur(workpiece, workpiece_filter, Size(7,7), 10);
 	guided_filter(workpiece_filter, &workpiece_filter);
 
-	//namedWindow("filter", WINDOW_NORMAL);
-	//imshow("filter", workpiece_filter);
+	Mat rectangle;
+	image->copyTo(rectangle);
+
+	Point2f points[4];
+	rect.points(points);
+	for (int i = 0; i < 4; i++) {
+		line(rectangle, points[i], points[(i + 1) % 4], Scalar(255, 255, 255), 2);
+	}
+	
+	namedWindow("rectangle", WINDOW_NORMAL);
+	imshow("rectangle", rectangle);
+
+	namedWindow("filter", WINDOW_NORMAL);
+	imshow("filter", workpiece_filter);
 
 	canny_detection(&workpiece_filter, &workpiece_canny, threshold);
-	//namedWindow("canny", WINDOW_NORMAL);
-	//imshow("canny", workpiece_canny);
+	namedWindow("canny", WINDOW_NORMAL);
+	imshow("canny", workpiece_canny);
 
 	remove_edges(workpiece_canny, &workpiece_canny, rect, rectangle_line_size);
 
-	remove_circles(workpiece_canny, &workpiece_canny, circles, radius_extension);
+	//remove_circles(workpiece_canny, &workpiece_canny, circles, radius_extension);
 
-	//namedWindow("removed", WINDOW_NORMAL);
-	//imshow("removed", workpiece_canny);
+	namedWindow("removed", WINDOW_NORMAL);
+	imshow("removed", workpiece_canny);
 
 	int errors = clusters(&workpiece_canny, image, min_cluster_size);
 

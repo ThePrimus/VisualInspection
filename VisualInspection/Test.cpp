@@ -80,7 +80,6 @@ int main(int argc, char* argv[]) {
 
 	while (true) {
 		Mat image_to_test;
-		cout << is_FreezeVideo(hCam, IS_WAIT) << endl;
 		if (test_from_filepath) {
 
 			image_to_test = imread(filepath);
@@ -170,13 +169,17 @@ void test_image(Mat img, bool show) {
 		cd.calculateExpectedCirclePositions();
 		cd.checkCircles();
 		result_circle_detection = cd.isModelCorrect();
+		//Mat circles1 = cd.drawCircles();
+		//namedWindow("circles", WINDOW_NORMAL);
+		//imshow("circles", circles1);
+		
 
 		std::vector<cv::Vec3f> circles = cd.getCircles();
 		cout << "Circle detection: " << (result_circle_detection ? "OK" : "FAILED") << endl;
 
 		if (result_circle_detection || check_everything) {
 			//damage detection
-			bool result_damage_detection = !detect_damage(&workpiece, rect, circles, 50, 8, 21, 12);
+			bool result_damage_detection = !detect_damage(&workpiece, rect, circles, 50, 8, 25, 15);
 			cout << "Damage detection: " << (result_damage_detection ? "OK" : "FAILED") << endl;
 		}
 	}
@@ -184,16 +187,17 @@ void test_image(Mat img, bool show) {
 	if (show) {
 		if (result_quad_detect) {
 			if (!result_circle_detection) {
-				Mat circle_error = cd.drawErrors();
-				imshow(window_name, circle_error);
-				waitKey(0);
+				//Mat circle_error = cd.drawErrors();
+				//imshow(window_name, circle_error);
+				//waitKey(0);
 			}
-			else { // true!
+			//else { // true!
 				if (!result_damage_detection) {
-					imshow(window_name, workpiece);
+					namedWindow("damage", WINDOW_NORMAL);
+					imshow("damage", workpiece);
 					waitKey(0);
 				}
-			}
+			//}
 		} else {
 			draw_quad_info(workpiece, &rect, Scalar(255, 0, 0), &contour, Scalar(0, 255, 0));
 			imshow(window_name, workpiece);

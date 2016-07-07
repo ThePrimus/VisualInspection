@@ -58,17 +58,23 @@ void CircleDetection::findCircles()
 	//cv::cvtColor(img_, imgTemp, CV_BGR2GRAY);
 	// Filter picture
 
-
+	/*cv::namedWindow("Bla", CV_WINDOW_NORMAL);
+	cv::imshow("Bla", img_);
+	cv::waitKey(0); 
 	cv::threshold(imgTemp, imgTemp, 0, 250, CV_THRESH_BINARY | CV_THRESH_OTSU);
-
+	cv::namedWindow("Bla", CV_WINDOW_NORMAL);
+	cv::imshow("Bla", imgTemp);
+	cv::waitKey(0);*/
 	// Blur it for better Hough Transformation
 	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-	cv::imshow("bla",imgTemp);
-	cv::waitKey(0);
+	/*cv::namedWindow("Bla", CV_WINDOW_NORMAL);
+	cv::imshow("Bla",imgTemp);
+	cv::waitKey(0);*/
 
 
 	// Apply the Hough Transform to find the circles
-	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 20, 100, 25, 1, 0);
+	//cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 20, 100, 25, 1, 0);
+	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 20, 100, 25, 20, 300);
 
 	int size = circles_.size();
 
@@ -76,6 +82,7 @@ void CircleDetection::findCircles()
 	for (int i = 0; i < size; i++) {
 		correctCircles_.push_back(false);
 	}
+	correctCircles_.size();
 }
 
 cv::Mat CircleDetection::drawCircles()

@@ -37,10 +37,10 @@ bool detect_quad(Mat in, double thresh_accuracy, double alpha, double beta, doub
 	vector<Pvec> contours;
 	vector<Vec4i> hierarchy;
 
-	Mat img = in;
+	Mat img;
 	//cv::cvtColor(in, img, CV_BGR2GRAY);
 
-	img.convertTo(img, -1, alpha, beta);
+	in.convertTo(img, -1, alpha, beta);
 
 	/// Detect edges using canny
 	auto tresh = 100;
