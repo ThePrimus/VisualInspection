@@ -51,24 +51,6 @@ std::vector<cv::Vec3f> CircleDetection::getCircles()
 
 void CircleDetection::findCircles()
 {
-	cv::Mat imgTemp;
-	cv::Mat imgTempThresh;
-	img_.convertTo(imgTemp, -1);
-	/// Convert it to gray
-	
-	//cv::cvtColor(img_, imgTemp, CV_BGR2GRAY);
-	// Filter picture
-
-	//cv::namedWindow("Bla", CV_WINDOW_NORMAL);
-	//cv::imshow("Bla", img_);
-	//cv::waitKey(0); 
-	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-
-
-	//cv::threshold(imgTemp, imgTempThresh, 40, 255, CV_THRESH_BINARY);
-
-
-
 	//cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
 	/*
 	int minSizeCircles = 20;
@@ -76,22 +58,15 @@ void CircleDetection::findCircles()
 	int minDist = 40;
 	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
 	*/
-
 	int minSizeCircles = 1;
 	int maxSizeCircles = 0;
 	int minDist = 100; // 20
 	//cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
 
 
-	cv::Mat maskedImage; 
-	cv::Mat mask(imgTemp.size(), imgTemp.type());
-	mask.setTo(cv::Scalar(255, 255, 255));   
-
 	double mmMask = mmToPixels(bigCirlceSize_) * 3;
-
-	std::vector<cv::Vec3f> circTemp;
-
 	//oben links
+	/*
 	cv::Point2f pos = outsideCircles_[0];
 	cv::Point center(pos.x, pos.y);
 	int radius = cvRound(mmMask); 
@@ -104,57 +79,25 @@ void CircleDetection::findCircles()
 	circTemp.clear();
 	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
 	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
+	*/
 
-
+	int thresholdValue = 40;
+	masking(outsideCircles_[0], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
+	
 
 	// unten rechts
- 	img_.convertTo(imgTemp, -1);
-	mask.setTo(cv::Scalar(255, 255, 255));
-	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-	mask.setTo(cv::Scalar(255, 255, 255));
-	pos = outsideCircles_[1];
-	center = pos;
-	radius = cvRound(mmMask);
-	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
-	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
-	cv::bitwise_or(imgTemp, mask, imgTemp);
-	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-	circTemp.clear();
-	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
-	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
+	thresholdValue = 40;
+	masking(outsideCircles_[1], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 
 
 
 	//oben rechts
-	img_.convertTo(imgTemp, -1);
-	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-	mask.setTo(cv::Scalar(255, 255, 255));
-	pos = outsideCircles_[2];
-	center = pos;
-	radius = cvRound(mmMask);
-	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
-	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
-	cv::bitwise_or(imgTemp, mask, imgTemp);
-	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-	circTemp.clear();
-	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
-	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
+	thresholdValue = 40;
+	masking(outsideCircles_[2], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 
 	// unten links
-	mask.setTo(cv::Scalar(255, 255, 255));
-	img_.convertTo(imgTemp, -1);
-	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-	mask.setTo(cv::Scalar(255, 255, 255));
-	pos = outsideCircles_[3];
-	center = pos;
-	radius = cvRound(mmMask);
-	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
-	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
-	cv::bitwise_or(imgTemp, mask, imgTemp);
-	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-	circTemp.clear();
-	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
-	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
+	thresholdValue = 40;
+	masking(outsideCircles_[3], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 
 
 
@@ -162,74 +105,22 @@ void CircleDetection::findCircles()
 
 	mmMask = mmToPixels(smallCirlceSize_) * 3;
 	//oben 
-	img_.convertTo(imgTemp, -1);
-	mask.setTo(cv::Scalar(255, 255, 255));
-	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-	mask.setTo(cv::Scalar(255, 255, 255));
-	pos = centralCircles_[0];
-	center = pos;
-	radius = cvRound(mmMask);
-	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
-	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
-	cv::bitwise_or(imgTemp, mask, imgTemp);
-	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-	circTemp.clear();
-	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
-	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
-
-
+	thresholdValue = 40;
+	masking(centralCircles_[0], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 
 	// unten 
-	img_.convertTo(imgTemp, -1);
-	mask.setTo(cv::Scalar(255, 255, 255));
-	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-	mask.setTo(cv::Scalar(255, 255, 255));
-	pos = centralCircles_[1];
-	center = pos;
-	radius = cvRound(mmMask);
-	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
-	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
-	cv::bitwise_or(imgTemp, mask, imgTemp);
-	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-	circTemp.clear();
-	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
-	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
+	thresholdValue = 40;
+	masking(centralCircles_[1], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 
 
 	//links 
-	img_.convertTo(imgTemp, -1);
-	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-	mask.setTo(cv::Scalar(255, 255, 255));
-	pos = centralCircles_[2];
-	center = pos;
-	radius = cvRound(mmMask);
-	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
-	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
-	cv::bitwise_or(imgTemp, mask, imgTemp);
-	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-	circTemp.clear();
-	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
-	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
+	thresholdValue = 40;
+	masking(centralCircles_[2], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 
 
 	// rechts 
-	img_.convertTo(imgTemp, -1);
-	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-	mask.setTo(cv::Scalar(255, 255, 255));
-	pos = centralCircles_[3];
-	center = pos;
-	radius = cvRound(mmMask);
-	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
-	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
-	cv::bitwise_or(imgTemp, mask, imgTemp);
-	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-	circTemp.clear();
-	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
-	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
-
-
-
-
+	thresholdValue = 40;
+	masking(centralCircles_[3], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 
 
 	/*
@@ -276,6 +167,28 @@ void CircleDetection::findCircles()
 		//std::cout << pixelsToMM(circles_[i][2]) << std::endl;
 	}
 	//std::cout << correctCircles_.size() << std::endl;
+}
+
+
+void CircleDetection::masking(cv::Point2f pos, int thresholdValue, int minSizeCircles, int maxSizeCircles, int minDist, int mmMask)
+{
+
+	std::vector<cv::Vec3f> circTemp;
+	cv::Mat imgTemp;
+	img_.convertTo(imgTemp, -1);
+	cv::Mat maskedImage;
+	cv::Mat mask(imgTemp.size(), imgTemp.type());
+	mask.setTo(cv::Scalar(255, 255, 255));
+	int radius = cvRound(mmMask);
+
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
+	cv::circle(mask, pos, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
+	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
+	cv::bitwise_or(imgTemp, mask, imgTemp);
+
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
+	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
+	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
 }
 
 cv::Mat CircleDetection::drawCircles()

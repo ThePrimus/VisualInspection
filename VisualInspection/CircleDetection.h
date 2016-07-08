@@ -13,6 +13,7 @@ public:
 	CircleDetection(double toleranceInMM);
 	void setImage(cv::Mat img);
 	void findCircles();
+	void masking(cv::Point2f, int thresholdValue, int minSizeCircles, int maxSizeCircles, int minDist, int mmMask);
 	cv::Mat drawCircles();
 	void setRotatedRect(cv::RotatedRect rotetedRect);
 	std::vector<cv::Vec3f>  getCircles();
