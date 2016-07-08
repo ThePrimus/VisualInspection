@@ -30,11 +30,11 @@ double PX2CM = 0.00664624;
 
 const bool test_from_filepath = true;
 const bool test_test_routine = false;
-const string filepath = "Images/Neue Beleuchtung/resized/KaputterSteg2.png";
+const string filepath = "Images/Neue Beleuchtung/resized/KaputterSteg2.png"; 
 //const string filepath = "Images/Neue Beleuchtung/resized/Perfekt2.png";
 //const string filepath = "Images/Neue Beleuchtung/resized/circles_test.png";
 //const string filepath = "Images/Neue Beleuchtung/resized/KaputteEcke3.png";
-const string calibration_image = "Images/Neue Beleuchtung/resized/Kalibrierung1.png";
+const string calibration_image = "Images/Neue Beleuchtung/resized/Kalibrierung1.png"; 
 const double calibration_value = 2.0;
 const string IMAGE_FOLDER = "./Images/Neue Beleuchtung/resized";
 
@@ -162,17 +162,18 @@ void test_image(Mat img, bool show) {
 
 		//circle detection
 		double conversion = 0.1 / PX2CM; // 1mm in pixel
-		cd.setPixelConversion(conversion);
-		cd.setRotatedRect(rect);
+ 		cd.setPixelConversion(conversion);
+ 		cd.setRotatedRect(rect);
 		cd.setImage(workpiece);
 		cd.calculateExpectedCirclePositions();
 		cd.findCircles();
 		cd.checkCircles();
 		result_circle_detection = cd.isModelCorrect();
-		//Mat circles1 = cd.drawCircles();
-		//namedWindow("circles", WINDOW_NORMAL);
-		//imshow("circles", circles1);
-		
+		/*
+		Mat circles1 = cd.drawCircles();
+		namedWindow("circles", WINDOW_NORMAL);
+		imshow("circles", circles1);
+		*/
 
 		std::vector<cv::Vec3f> circles = cd.getCircles();
 		cout << "Circle detection: " << (result_circle_detection ? "OK" : "FAILED") << endl;

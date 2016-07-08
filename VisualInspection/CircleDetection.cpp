@@ -67,148 +67,165 @@ void CircleDetection::findCircles()
 
 	//cv::threshold(imgTemp, imgTempThresh, 40, 255, CV_THRESH_BINARY);
 
-	cv::namedWindow("thresh", CV_WINDOW_NORMAL);
-	cv::imshow("thresh", imgTemp);
-	cv::waitKey(0);
 
 
+	//cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
+	/*
+	int minSizeCircles = 20;
+	int maxSizeCircles = 300;
+	int minDist = 40;
+	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
+	*/
 
+	int minSizeCircles = 1;
+	int maxSizeCircles = 0;
+	int minDist = 100; // 20
+	//cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
 
 
 	cv::Mat maskedImage; 
 	cv::Mat mask(imgTemp.size(), imgTemp.type());
 	mask.setTo(cv::Scalar(255, 255, 255));   
 
-	double mmMask = mmToPixels(mmToPixels(bigCirlceSize_) * 3);
+	double mmMask = mmToPixels(bigCirlceSize_) * 3;
+
+	std::vector<cv::Vec3f> circTemp;
 
 	//oben links
 	cv::Point2f pos = outsideCircles_[0];
 	cv::Point center(pos.x, pos.y);
 	int radius = cvRound(mmMask); 
 	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
 	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
 	cv::bitwise_or(imgTemp, mask, imgTemp);
-	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
 
-	cv::namedWindow("thresh", CV_WINDOW_NORMAL);
-	cv::imshow("thresh", imgTemp);
-	cv::waitKey(0);
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
+	circTemp.clear();
+	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
+	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
+
 
 
 	// unten rechts
-	img_.convertTo(imgTemp, -1);
+ 	img_.convertTo(imgTemp, -1);
+	mask.setTo(cv::Scalar(255, 255, 255));
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
 	mask.setTo(cv::Scalar(255, 255, 255));
 	pos = outsideCircles_[1];
-	cv::Point center(pos.x, pos.y);
+	center = pos;
 	radius = cvRound(mmMask);
 	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
 	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
 	cv::bitwise_or(imgTemp, mask, imgTemp);
-	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
+	circTemp.clear();
+	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
+	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
 
-	cv::namedWindow("thresh", CV_WINDOW_NORMAL);
-	cv::imshow("thresh", imgTemp);
-	cv::waitKey(0);
 
 
 	//oben rechts
 	img_.convertTo(imgTemp, -1);
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
 	mask.setTo(cv::Scalar(255, 255, 255));
 	pos = outsideCircles_[2];
-	cv::Point center(pos.x, pos.y);
+	center = pos;
 	radius = cvRound(mmMask);
 	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
 	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
 	cv::bitwise_or(imgTemp, mask, imgTemp);
-	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
-
-	cv::namedWindow("thresh", CV_WINDOW_NORMAL);
-	cv::imshow("thresh", imgTemp);
-	cv::waitKey(0);
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
+	circTemp.clear();
+	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
+	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
 
 	// unten links
+	mask.setTo(cv::Scalar(255, 255, 255));
 	img_.convertTo(imgTemp, -1);
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
 	mask.setTo(cv::Scalar(255, 255, 255));
 	pos = outsideCircles_[3];
-	cv::Point center(pos.x, pos.y);
+	center = pos;
 	radius = cvRound(mmMask);
-	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
-	cv::threshold(imgTemp, imgTempThresh, 40, 255, CV_THRESH_BINARY);
-	cv::bitwise_or(imgTempThresh, mask, imgTempThresh);
-	cv::HoughCircles(imgTempThresh, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
-
-
-	cv::namedWindow("thresh", CV_WINDOW_NORMAL);
-	cv::imshow("thresh", imgTemp);
-	cv::waitKey(0);
-
-
-
-	mmMask = mmToPixels(mmToPixels(smallCirlceSize_) * 3);
-	//oben 
-	cv::Point2f pos = centralCircles_[0];
-	cv::Point center(pos.x, pos.y);
-	int radius = cvRound(mmMask);
 	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
 	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
 	cv::bitwise_or(imgTemp, mask, imgTemp);
-	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
+	circTemp.clear();
+	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
+	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
 
 
-	cv::namedWindow("thresh", CV_WINDOW_NORMAL);
-	cv::imshow("thresh", imgTemp);
-	cv::waitKey(0);
+
+
+
+	mmMask = mmToPixels(smallCirlceSize_) * 3;
+	//oben 
+	img_.convertTo(imgTemp, -1);
+	mask.setTo(cv::Scalar(255, 255, 255));
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
+	mask.setTo(cv::Scalar(255, 255, 255));
+	pos = centralCircles_[0];
+	center = pos;
+	radius = cvRound(mmMask);
+	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
+	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
+	cv::bitwise_or(imgTemp, mask, imgTemp);
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
+	circTemp.clear();
+	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
+	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
+
+
 
 	// unten 
 	img_.convertTo(imgTemp, -1);
 	mask.setTo(cv::Scalar(255, 255, 255));
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
+	mask.setTo(cv::Scalar(255, 255, 255));
 	pos = centralCircles_[1];
-	cv::Point center(pos.x, pos.y);
+	center = pos;
 	radius = cvRound(mmMask);
 	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
 	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
 	cv::bitwise_or(imgTemp, mask, imgTemp);
-	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
+	circTemp.clear();
+	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
+	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
 
-
-
-	cv::namedWindow("thresh", CV_WINDOW_NORMAL);
-	cv::imshow("thresh", imgTemp);
-	cv::waitKey(0);
 
 	//links 
 	img_.convertTo(imgTemp, -1);
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
 	mask.setTo(cv::Scalar(255, 255, 255));
 	pos = centralCircles_[2];
-	cv::Point center(pos.x, pos.y);
+	center = pos;
 	radius = cvRound(mmMask);
 	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
 	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
 	cv::bitwise_or(imgTemp, mask, imgTemp);
-	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
+	circTemp.clear();
+	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
+	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
 
-
-	cv::namedWindow("thresh", CV_WINDOW_NORMAL);
-	cv::imshow("thresh", imgTemp);
-	cv::waitKey(0);
 
 	// rechts 
 	img_.convertTo(imgTemp, -1);
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
 	mask.setTo(cv::Scalar(255, 255, 255));
 	pos = centralCircles_[3];
-	cv::Point center(pos.x, pos.y);
+	center = pos;
 	radius = cvRound(mmMask);
 	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
-	cv::threshold(imgTemp, imgTempThresh, 40, 255, CV_THRESH_BINARY);
-	cv::bitwise_or(imgTempThresh, mask, imgTempThresh);
-	cv::HoughCircles(imgTempThresh, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
-
-
-
-	cv::namedWindow("thresh", CV_WINDOW_NORMAL);
-	cv::imshow("thresh", imgTemp);
-	cv::waitKey(0);
-
+	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
+	cv::bitwise_or(imgTemp, mask, imgTemp);
+	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
+	circTemp.clear();
+	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
+	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
 
 
 
