@@ -52,6 +52,7 @@ std::vector<cv::Vec3f> CircleDetection::getCircles()
 void CircleDetection::findCircles()
 {
 	cv::Mat imgTemp;
+	cv::Mat imgTempThresh;
 	img_.convertTo(imgTemp, -1);
 	/// Convert it to gray
 	
@@ -62,16 +63,133 @@ void CircleDetection::findCircles()
 	//cv::imshow("Bla", img_);
 	//cv::waitKey(0); 
 	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
+
+
+	//cv::threshold(imgTemp, imgTempThresh, 40, 255, CV_THRESH_BINARY);
 
 	//cv::namedWindow("thresh", CV_WINDOW_NORMAL);
 	//cv::imshow("thresh", imgTemp);
 	//cv::waitKey(0);
 
-	cv::Mat maskedImage; // stores masked Image
-	cv::Mat mask(imgTemp.size(), imgTemp.type());  // create an Mat that has same Dimensons as src
-	mask.setTo(cv::Scalar(255, 255, 255));                                            // creates black-Image
-																				// Add all found circles to mask
+
+
+
+
+	cv::Mat maskedImage; 
+	cv::Mat mask(imgTemp.size(), imgTemp.type());
+	mask.setTo(cv::Scalar(255, 255, 255));   
+
+	double mmMask = mmToPixels(mmToPixels(bigCirlceSize_) * 3);
+
+	//oben links
+	cv::Point2f pos = outsideCircles_[0];
+	cv::Point center(pos.x, pos.y);
+	int radius = cvRound(mmMask); 
+	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
+	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
+	cv::bitwise_or(imgTemp, mask, imgTemp);
+	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
+
+
+
+
+	// unten rechts
+	img_.convertTo(imgTemp, -1);
+	mask.setTo(cv::Scalar(255, 255, 255));
+	pos = outsideCircles_[1];
+	cv::Point center(pos.x, pos.y);
+	radius = cvRound(mmMask);
+	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
+	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
+	cv::bitwise_or(imgTemp, mask, imgTemp);
+	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
+
+
+	//oben rechts
+	img_.convertTo(imgTemp, -1);
+	mask.setTo(cv::Scalar(255, 255, 255));
+	pos = outsideCircles_[2];
+	cv::Point center(pos.x, pos.y);
+	radius = cvRound(mmMask);
+	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
+	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
+	cv::bitwise_or(imgTemp, mask, imgTemp);
+	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
+
+
+	// unten links
+	img_.convertTo(imgTemp, -1);
+	mask.setTo(cv::Scalar(255, 255, 255));
+	pos = outsideCircles_[3];
+	cv::Point center(pos.x, pos.y);
+	radius = cvRound(mmMask);
+	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
+	cv::threshold(imgTemp, imgTempThresh, 40, 255, CV_THRESH_BINARY);
+	cv::bitwise_or(imgTempThresh, mask, imgTempThresh);
+	cv::HoughCircles(imgTempThresh, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
+
+
+
+
+	mmMask = mmToPixels(mmToPixels(smallCirlceSize_) * 3);
+	//oben 
+	cv::Point2f pos = centralCircles_[0];
+	cv::Point center(pos.x, pos.y);
+	int radius = cvRound(mmMask);
+	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
+	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
+	cv::bitwise_or(imgTemp, mask, imgTemp);
+	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
+
+
+
+
+	// unten 
+	img_.convertTo(imgTemp, -1);
+	mask.setTo(cv::Scalar(255, 255, 255));
+	pos = centralCircles_[1];
+	cv::Point center(pos.x, pos.y);
+	radius = cvRound(mmMask);
+	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
+	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
+	cv::bitwise_or(imgTemp, mask, imgTemp);
+	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
+
+
+	//links 
+	img_.convertTo(imgTemp, -1);
+	mask.setTo(cv::Scalar(255, 255, 255));
+	pos = centralCircles_[2];
+	cv::Point center(pos.x, pos.y);
+	radius = cvRound(mmMask);
+	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
+	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
+	cv::bitwise_or(imgTemp, mask, imgTemp);
+	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
+
+
+	// rechts 
+	img_.convertTo(imgTemp, -1);
+	mask.setTo(cv::Scalar(255, 255, 255));
+	pos = centralCircles_[3];
+	cv::Point center(pos.x, pos.y);
+	radius = cvRound(mmMask);
+	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
+	cv::threshold(imgTemp, imgTempThresh, 40, 255, CV_THRESH_BINARY);
+	cv::bitwise_or(imgTempThresh, mask, imgTempThresh);
+	cv::HoughCircles(imgTempThresh, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
+
+
+
+
+
+
+
+
+
+
+
+	/*
 
 	for(int i = 0; i < outsideCircles_.size(); i++)                          // iterate through all detected Circles
 	{
@@ -105,6 +223,7 @@ void CircleDetection::findCircles()
 	// Apply the Hough Transform to find the circles
 	//cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 20, 100, 25, 1, 0);
 	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
+	*/
 
 	int size = circles_.size();
 
