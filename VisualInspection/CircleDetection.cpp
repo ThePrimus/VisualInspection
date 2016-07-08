@@ -67,9 +67,9 @@ void CircleDetection::findCircles()
 
 	//cv::threshold(imgTemp, imgTempThresh, 40, 255, CV_THRESH_BINARY);
 
-	//cv::namedWindow("thresh", CV_WINDOW_NORMAL);
-	//cv::imshow("thresh", imgTemp);
-	//cv::waitKey(0);
+	cv::namedWindow("thresh", CV_WINDOW_NORMAL);
+	cv::imshow("thresh", imgTemp);
+	cv::waitKey(0);
 
 
 
@@ -90,7 +90,9 @@ void CircleDetection::findCircles()
 	cv::bitwise_or(imgTemp, mask, imgTemp);
 	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
 
-
+	cv::namedWindow("thresh", CV_WINDOW_NORMAL);
+	cv::imshow("thresh", imgTemp);
+	cv::waitKey(0);
 
 
 	// unten rechts
@@ -104,6 +106,10 @@ void CircleDetection::findCircles()
 	cv::bitwise_or(imgTemp, mask, imgTemp);
 	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
 
+	cv::namedWindow("thresh", CV_WINDOW_NORMAL);
+	cv::imshow("thresh", imgTemp);
+	cv::waitKey(0);
+
 
 	//oben rechts
 	img_.convertTo(imgTemp, -1);
@@ -116,6 +122,9 @@ void CircleDetection::findCircles()
 	cv::bitwise_or(imgTemp, mask, imgTemp);
 	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
 
+	cv::namedWindow("thresh", CV_WINDOW_NORMAL);
+	cv::imshow("thresh", imgTemp);
+	cv::waitKey(0);
 
 	// unten links
 	img_.convertTo(imgTemp, -1);
@@ -128,6 +137,10 @@ void CircleDetection::findCircles()
 	cv::bitwise_or(imgTempThresh, mask, imgTempThresh);
 	cv::HoughCircles(imgTempThresh, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
 
+
+	cv::namedWindow("thresh", CV_WINDOW_NORMAL);
+	cv::imshow("thresh", imgTemp);
+	cv::waitKey(0);
 
 
 
@@ -142,7 +155,9 @@ void CircleDetection::findCircles()
 	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
 
 
-
+	cv::namedWindow("thresh", CV_WINDOW_NORMAL);
+	cv::imshow("thresh", imgTemp);
+	cv::waitKey(0);
 
 	// unten 
 	img_.convertTo(imgTemp, -1);
@@ -156,6 +171,11 @@ void CircleDetection::findCircles()
 	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
 
 
+
+	cv::namedWindow("thresh", CV_WINDOW_NORMAL);
+	cv::imshow("thresh", imgTemp);
+	cv::waitKey(0);
+
 	//links 
 	img_.convertTo(imgTemp, -1);
 	mask.setTo(cv::Scalar(255, 255, 255));
@@ -167,6 +187,10 @@ void CircleDetection::findCircles()
 	cv::bitwise_or(imgTemp, mask, imgTemp);
 	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
 
+
+	cv::namedWindow("thresh", CV_WINDOW_NORMAL);
+	cv::imshow("thresh", imgTemp);
+	cv::waitKey(0);
 
 	// rechts 
 	img_.convertTo(imgTemp, -1);
@@ -181,7 +205,9 @@ void CircleDetection::findCircles()
 
 
 
-
+	cv::namedWindow("thresh", CV_WINDOW_NORMAL);
+	cv::imshow("thresh", imgTemp);
+	cv::waitKey(0);
 
 
 
