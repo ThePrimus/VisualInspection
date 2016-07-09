@@ -88,19 +88,19 @@ int clusters(Mat* in, Mat* out, int min_size) {
 		contours[labels[i]].push_back(pts[i]);
 	}
 
+	Mat cluster;
+
 	for (int i = 0; i < labels_count; i++) {
-		int whitePixelInCluster = 0;
-		//for (int j = 0; j < contours[i].size(); i++) {
-			//Point p = contours[i][j];
-			//whitePixelInCluster += in->at<int>(contours[i][j].x, contours[i][j].y);
-			
-			
-		//}
-		//whitePixelInCluster /= 255;
-		//cout << "cluster " << i << " whitePixel: " << whitePixelInCluster << endl;
-		if (contours[i].size() >= min_size) {
-			//cout << "cluster size " << i << " : " << contours[i].size() << endl;
-			Rect boundedRect = boundingRect(contours[i]);
+		Rect boundedRect = boundingRect(contours[i]);
+		Point2f center = Point2f(boundedRect.x + boundedRect.width / 2, boundedRect.y + boundedRect.height / 2);
+		
+
+		getRectSubPix(*in, boundedRect.size(), center, cluster);
+		threshold(cluster, cluster, 2, 255, THRESH_BINARY);
+		int whitePixel = (int)sum(cluster)[0] / 255;
+
+		//cout << "cluster " << i << " whitePixel: " << whitePixel << endl;
+		if (whitePixel >= min_size) {	
 			boundedRect.x -= 10;
 			boundedRect.y -= 10;
 			boundedRect.width += 20;
@@ -165,6 +165,11 @@ bool detect_damage(Mat* image, RotatedRect rect, vector<Vec3f> circles, int thre
 	GaussianBlur(workpiece, workpiece_filter, Size(7,7), 10);
 	guided_filter(workpiece_filter, &workpiece_filter);
 
+	//namedWindow("filter", WINDOW_NORMAL);
+	//imshow("filter", workpiece_filter);
+
+	/*
+	//draw rectangle (testing)
 	Mat rectangle;
 	image->copyTo(rectangle);
 
@@ -174,11 +179,10 @@ bool detect_damage(Mat* image, RotatedRect rect, vector<Vec3f> circles, int thre
 		line(rectangle, points[i], points[(i + 1) % 4], Scalar(255, 255, 255), 2);
 	}
 	
-	//namedWindow("rectangle", WINDOW_NORMAL);
-	//imshow("rectangle", rectangle);
+	namedWindow("rectangle", WINDOW_NORMAL);
+	imshow("rectangle", rectangle);*/
 
-	//namedWindow("filter", WINDOW_NORMAL);
-	//imshow("filter", workpiece_filter);
+	
 
 	canny_detection(&workpiece_filter, &workpiece_canny, threshold);
 	//namedWindow("canny", WINDOW_NORMAL);

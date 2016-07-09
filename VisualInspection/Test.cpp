@@ -30,11 +30,11 @@ double PX2CM = 0.00664624;
 
 const bool test_from_filepath = true;
 const bool test_test_routine = false;
-const string filepath = "Images/Neue Beleuchtung/resized/KaputterSteg2.png"; 
-//const string filepath = "Images/Neue Beleuchtung/resized/Perfekt2.png";
-//const string filepath = "Images/Neue Beleuchtung/resized/circles_test.png";
-//const string filepath = "Images/Neue Beleuchtung/resized/KaputteEcke3.png";
-const string calibration_image = "Images/Neue Beleuchtung/resized/Kalibrierung1.png"; 
+const string filepath = "Images/Neue Beleuchtung/KaputterSteg2.png"; 
+//const string filepath = "Images/Neue Beleuchtung/Perfekt2.png";
+//const string filepath = "Images/Neue Beleuchtung/circles_test.png";
+//const string filepath = "Images/Neue Beleuchtung/KaputteEcke3.png";
+const string calibration_image = "Images/Neue Beleuchtung/Kalibrierung1.png"; 
 const double calibration_value = 2.0;
 const string IMAGE_FOLDER = "./Images/Neue Beleuchtung/resized";
 
@@ -180,7 +180,7 @@ void test_image(Mat img, bool show) {
 
 		if (result_circle_detection || check_everything) {
 			//damage detection
-			bool result_damage_detection = !detect_damage(&workpiece, rect, circles, 50, 8, 25, 15);
+			bool result_damage_detection = !detect_damage(&workpiece, rect, circles, 50, 20, 25, 15);
 			cout << "Damage detection: " << (result_damage_detection ? "OK" : "FAILED") << endl;
 		}
 	}
