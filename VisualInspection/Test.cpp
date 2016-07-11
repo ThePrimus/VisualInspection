@@ -56,6 +56,7 @@ int main(int argc, char* argv[]) {
 	}
 
 	namedWindow(window_name, WINDOW_NORMAL);
+	resizeWindow(window_name, 1024, 765);
 
 	HIDS hCam = 1; // 0
 	char* imgMem;
@@ -150,7 +151,7 @@ void test_image(Mat img, bool show) {
 	bool result_circle_detection = false;
 	bool result_damage_detection = false;
 
-	bool check_everything = false;
+	bool check_everything = true;
 
 	cout << "==========" << endl;
 	//quad detection
@@ -181,7 +182,7 @@ void test_image(Mat img, bool show) {
 
 		if (result_circle_detection || check_everything) {
 			//damage detection
-			bool result_damage_detection = !detect_damage(&workpiece, rect, circles, 50, 20, 25, 15);
+			bool result_damage_detection = !detect_damage(&workpiece, rect, circles, 50, 30, 25, 15);
 			cout << "Damage detection: " << (result_damage_detection ? "OK" : "FAILED") << endl;
 		}
 	}

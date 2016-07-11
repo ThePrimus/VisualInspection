@@ -197,11 +197,11 @@ void CircleDetection::masking(cv::Point2f pos, int thresholdValue, int minSizeCi
 	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
 	cv::circle(mask, pos, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
 	cv::threshold(imgTemp, imgTemp, thresholdValue, 255, CV_THRESH_BINARY);
-	cv::namedWindow("Thresh", CV_WINDOW_NORMAL);
-	cv::imshow("Thresh", imgTemp);
+	//cv::namedWindow("Thresh", CV_WINDOW_NORMAL);
+	//cv::imshow("Thresh", imgTemp);
 	cv::bitwise_or(imgTemp, mask, imgTemp);
-	cv::namedWindow("bitwise", CV_WINDOW_NORMAL);
-	cv::imshow("bitwise", imgTemp);
+	//cv::namedWindow("bitwise", CV_WINDOW_NORMAL);
+	//cv::imshow("bitwise", imgTemp);
 
 	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
 	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
@@ -210,8 +210,8 @@ void CircleDetection::masking(cv::Point2f pos, int thresholdValue, int minSizeCi
 
 	draw_rotated_rect(img, rotetedRect_, cv::Scalar(255, 255, 255));
 
-	cv::namedWindow("Circles", CV_WINDOW_NORMAL);
-	cv::imshow("Circles", img);
+	//cv::namedWindow("Circles", CV_WINDOW_NORMAL);
+	//cv::imshow("Circles", img);
 }
 
 cv::Mat CircleDetection::drawCircles()
