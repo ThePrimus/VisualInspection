@@ -14,17 +14,19 @@ CircleDetection::CircleDetection()
 {
 	bigCirlceSize_ = 7 / 2; // in mm
 	smallCirlceSize_ = 5 / 2; // in mm
-	toleranceValue_ = 3; // in mm
+	circleSizeTolerance_ = 1; // in mm
+	circlePositionTolerance_ = 3; // in mm
 	circleAmount_ = 6;
 	isVertical_ = false;
 }
 
 
-CircleDetection::CircleDetection(double toleranceInMM)
+CircleDetection::CircleDetection(double sizeToleranceInMM, double positionToleranceInMM)
 {
 	bigCirlceSize_ = 7 / 2; // in mm
 	smallCirlceSize_ = 5 / 2; // in mm
-	toleranceValue_ = toleranceInMM; // in mm
+	circleSizeTolerance_ = sizeToleranceInMM; // in mm
+	circlePositionTolerance_ = positionToleranceInMM; // in mm
 	circleAmount_ = 6;
 }
 
@@ -52,13 +54,6 @@ std::vector<cv::Vec3f> CircleDetection::getCircles()
 
 void CircleDetection::findCircles()
 {
-	//cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
-	/*
-	int minSizeCircles = 20;
-	int maxSizeCircles = 300;
-	int minDist = 40;
-	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
-	*/
 	int minSizeCircles = 1;
 	int maxSizeCircles = 0;
 	int minDist = 100; // 20
@@ -67,20 +62,6 @@ void CircleDetection::findCircles()
 
 	double mmMask = mmToPixels(bigCirlceSize_) * 2;
 	//oben links
-	/*
-	cv::Point2f pos = outsideCircles_[0];
-	cv::Point center(pos.x, pos.y);
-	int radius = cvRound(mmMask); 
-	cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
-	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
-	cv::bitwise_or(imgTemp, mask, imgTemp);
-
-	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-	circTemp.clear();
-	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
-	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
-	*/
 
 	int thresholdValue = 70; //105
 	masking(outsideCircles_[0], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
@@ -117,7 +98,7 @@ void CircleDetection::findCircles()
 
 	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
 
-	for (int i = 0; i < centralCircles_.size(); i++)                          // iterate through all detected Circles
+	for (int i = 0; i < centralCircles_.size(); i++)   // iterate through all detected Circles
 	{
 		if (correctCenterCircles_ == false) {
 			continue;
@@ -144,77 +125,12 @@ void CircleDetection::findCircles()
 		std::cout << pixelsToMM(circles_[i][2] * 2) << std::endl;
 	}
 
-	/*
-	if(isVertical_)
-	{
-	//oben 
-	thresholdValue = 70; // 50
-	masking(centralCircles_[0], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
-
-	// unten 
-	thresholdValue = 70; // 50
-	masking(centralCircles_[1], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
-	} 
-	else
-	{
-
-	//links 
-	thresholdValue = 70; // 40
-	masking(centralCircles_[2], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
-
-
-	// rechts 
-	thresholdValue = 70; // 40
-	masking(centralCircles_[3], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
-	}
-
-
-	*/
-
-	/*
-
-	for(int i = 0; i < outsideCircles_.size(); i++)                          // iterate through all detected Circles
-	{
-		double mmMask = mmToPixels(mmToPixels(bigCirlceSize_)*3);
-		cv::Point2f pos = outsideCircles_[i];
-		cv::Point center(pos.x, pos.y); // CVRound converts floating numbers to integer
-		int radius = cvRound(mmMask);                              // Radius is the third parameter [i][0] = x [i][1]= y [i][2] = radius
-		cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);    // Circle(img, center, radius, color, thickness=1, lineType=8, shift=0)	
-}
-
-	for (int i = 0; i < centralCircles_.size(); i++)                          // iterate through all detected Circles
-	{
-		if (correctCenterCircles_ == false) {
-			continue;
-		}
-		double mmMask = mmToPixels(mmToPixels(smallCirlceSize_)*3);
-		cv::Point2f pos = centralCircles_[i];
-		cv::Point center(pos.x, pos.y); // CVRound converts floating numbers to integer
-		int radius = cvRound(mmMask);                              // Radius is the third parameter [i][0] = x [i][1]= y [i][2] = radius
-		cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);    // Circle(img, center, radius, color, thickness=1, lineType=8, shift=0)	
-	}
-
-	cv::bitwise_or(imgTemp, mask, imgTemp);
-
-	// Blur it for better Hough Transformation
-	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2); // vorher ImgTemp
-	//cv::namedWindow("Bla", CV_WINDOW_NORMAL);
-	//cv::imshow("Bla",imgTemp);
-	//cv::waitKey(0);
-
-	// Apply the Hough Transform to find the circles
-	//cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 20, 100, 25, 1, 0);
-	cv::HoughCircles(imgTemp, circles_, cv::HOUGH_GRADIENT, 1, 40, 100, 25, 20, 300);
-	*/
-
 	int size = circles_.size();
 
 	correctCircles_.clear();
 	for (int i = 0; i < size; i++) {
 		correctCircles_.push_back(false);
-		//std::cout << pixelsToMM(circles_[i][2]) << std::endl;
 	}
-	//std::cout << correctCircles_.size() << std::endl;
 }
 
 
@@ -232,26 +148,17 @@ void CircleDetection::masking(cv::Point2f pos, int thresholdValue, int minSizeCi
 	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
 	cv::circle(mask, pos, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
 	cv::threshold(imgTemp, imgTemp, thresholdValue, 255, CV_THRESH_BINARY);
-	//cv::namedWindow("Thresh", CV_WINDOW_NORMAL);
-	//cv::imshow("Thresh", imgTemp);
 	cv::bitwise_or(imgTemp, mask, imgTemp);
-	//cv::namedWindow("bitwise", CV_WINDOW_NORMAL);
-	//cv::imshow("bitwise", imgTemp);
 
 	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
 	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
 	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
-	cv::Mat img = drawCircles();
-
-	draw_rotated_rect(img, rotetedRect_, cv::Scalar(255, 255, 255));
-
-	cv::namedWindow("Circles", CV_WINDOW_NORMAL);
-	cv::imshow("Circles", img);
 }
 
-cv::Mat CircleDetection::drawCircles()
+cv::Mat CircleDetection::drawCircles(bool drawCorrectCircles)
 {
 	cv::Mat imgTemp = img_.clone();
+	cv::cvtColor(imgTemp, imgTemp, CV_GRAY2RGB);
 
 	/// Draw the circles detected
 	for (size_t i = 0; i < circles_.size(); i++)
@@ -259,17 +166,18 @@ cv::Mat CircleDetection::drawCircles()
 		cv::Point center(cvRound(circles_[i][0]), cvRound(circles_[i][1]));
 		int radius = cvRound(circles_[i][2]);
 		// circle center
-		cv::circle(imgTemp, center, 3, cv::Scalar(255, 255, 255), -1, 8, 0);
+		cv::circle(imgTemp, center, 3, cv::Scalar(0, 0, 255), -1, 8, 0);
 		// circle outline
-		cv::circle(imgTemp, center, radius, cv::Scalar(255, 255, 255), 2, 8, 0);
+		cv::circle(imgTemp, center, radius, cv::Scalar(0, 0, 255), 2, 8, 0);
 	}
-	
+	if(drawCorrectCircles)
+	{ 
 	for (size_t i = 0; i < outsideCircles_.size(); i++)
 	{
 		cv::Point center(cvRound(outsideCircles_[i].x), cvRound(outsideCircles_[i].y));
 	//	int radius = cvRound(3);
 		// circle center
-		cv::circle(imgTemp, center, 3, cv::Scalar(120, 120, 120), -1, 8, 0);
+		cv::circle(imgTemp, center, 3, cv::Scalar(0, 0, 120), -1, 8, 0);
 		// circle outline
 	//	cv::circle(imgTemp, center, radius, cv::Scalar(120, 120, 120), 2, 8, 0);
 	}
@@ -277,11 +185,7 @@ cv::Mat CircleDetection::drawCircles()
 	for (size_t i = 0; i < centralCircles_.size(); i++)
 	{
 		cv::Point center(cvRound(centralCircles_[i].x), cvRound(centralCircles_[i].y));
-		//int radius = cvRound(3);
-		// circle center
-		cv::circle(imgTemp, center, 3, cv::Scalar(120, 120, 120), -1, 8, 0);
-		// circle outline
-	//	cv::circle(imgTemp, center, radius, cv::Scalar(120, 120, 120), 2, 8, 0);
+		cv::circle(imgTemp, center, 3, cv::Scalar(0, 0, 120), -1, 8, 0);
 	}
 	
 	cv::Point2f vertices[4];
@@ -291,9 +195,9 @@ cv::Mat CircleDetection::drawCircles()
 		//cv::line(imgTemp, rotetedRect_.center, vertices[i], cv::Scalar(120, 120, 120), 1);
 	}
 
-	cv::line(imgTemp, vertices[0], vertices[2], cv::Scalar(120, 120, 120), 1);
-	cv::line(imgTemp, vertices[1], vertices[3], cv::Scalar(120, 120, 120), 1);
-
+	cv::line(imgTemp, vertices[0], vertices[2], cv::Scalar(0, 0, 120), 1);
+	cv::line(imgTemp, vertices[1], vertices[3], cv::Scalar(0, 0, 120), 1);
+	}
 	return imgTemp;
 }
 
@@ -302,6 +206,7 @@ cv::Mat  CircleDetection::drawErrors()
 {
 
 	cv::Mat imgTemp = img_.clone();
+	cv::cvtColor(imgTemp, imgTemp, CV_GRAY2RGB);
 	/// Draw the circles detected
 	for (size_t i = 0; i < circles_.size(); i++)
 	{
@@ -381,7 +286,7 @@ cv::Point2f CircleDetection::getPositionOfInnerCircles(int x, int y)
 
 int CircleDetection::findClosestCirlce(cv::Point2f calculatedPosition)
 {
-	double toleranceValueInPixels = mmToPixels(toleranceValue_);
+	double toleranceValueInPixels = mmToPixels(circlePositionTolerance_);
 	double distance = std::numeric_limits<double>::max();
 	int indexOfClosestCircle = -1;
 	for (int i = 0; i < circles_.size(); i++) 
@@ -515,7 +420,7 @@ void CircleDetection::checkCircles()
 
 	double bigCirlceSizeInPixels = mmToPixels(bigCirlceSize_);
 	double smallCirlceSizeinPixels = mmToPixels(smallCirlceSize_);
-	double toleranceValueInPixles = mmToPixels(toleranceValue_);
+	double toleranceValueInPixles = mmToPixels(circleSizeTolerance_);
 	bool horizontalOrientation = true;
 
 	// checking orientation of model

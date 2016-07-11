@@ -10,11 +10,11 @@
 class CircleDetection {
 public:
 	CircleDetection();
-	CircleDetection(double toleranceInMM);
+	CircleDetection(double sizeToleranceInMM, double positionToleranceInMM);
 	void setImage(cv::Mat img);
 	void findCircles();
 	void masking(cv::Point2f, int thresholdValue, int minSizeCircles, int maxSizeCircles, int minDist, int mmMask);
-	cv::Mat drawCircles();
+	cv::Mat drawCircles(bool drawCorrectCircles);
 	void setRotatedRect(cv::RotatedRect rotetedRect);
 	std::vector<cv::Vec3f>  getCircles();
 	double pixelsToMM(int pixels);
@@ -37,7 +37,8 @@ private:
 	double pixelConversion_;
 	double bigCirlceSize_;
 	double smallCirlceSize_;
-	double toleranceValue_;
+	double circleSizeTolerance_;
+	double circlePositionTolerance_;
 	std::vector<cv::Point2f> centralCircles_;
 	std::vector<cv::Point2f> outsideCircles_;
 	cv::Mat img_;

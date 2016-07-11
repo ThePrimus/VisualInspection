@@ -182,11 +182,11 @@ void test_image(Mat img, bool show) {
 		cd.checkCircles();
 		result_circle_detection = cd.isModelCorrect();
 
-		
-		Mat circles1 = cd.drawCircles();
+		/*
+		Mat circles1 = cd.drawCircles(true);
 		namedWindow("circles", WINDOW_NORMAL);
 		imshow("circles", circles1);
-		
+		*/
 
 		std::vector<cv::Vec3f> circles = cd.getCircles();
 		cout << "Circle detection: " << (result_circle_detection ? "OK" : "FAILED") << endl;
