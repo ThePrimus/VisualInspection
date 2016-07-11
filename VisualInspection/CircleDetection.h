@@ -5,7 +5,7 @@
 #include "opencv2/imgcodecs.hpp"
 #include "opencv2/highgui/highgui.hpp"
 #include "opencv2/imgproc/imgproc.hpp"
-
+#include "detect_quad.h"
 
 class CircleDetection {
 public:
@@ -30,6 +30,7 @@ public:
 	double euclidianDistance(cv::Point2f a, cv::Point2f b);
 
 private:
+	bool isVertical_;
 	std::vector<bool> correctCircles_;
 	bool isCorrect_;
 	int circleAmount_;

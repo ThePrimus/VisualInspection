@@ -16,6 +16,7 @@ CircleDetection::CircleDetection()
 	smallCirlceSize_ = 5 / 2; // in mm
 	toleranceValue_ = 3; // in mm
 	circleAmount_ = 6;
+	isVertical_ = false;
 }
 
 
@@ -64,7 +65,7 @@ void CircleDetection::findCircles()
 	//cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
 
 
-	double mmMask = mmToPixels(bigCirlceSize_) * 3;
+	double mmMask = mmToPixels(bigCirlceSize_) * 2;
 	//oben links
 	/*
 	cv::Point2f pos = outsideCircles_[0];
@@ -81,37 +82,44 @@ void CircleDetection::findCircles()
 	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
 	*/
 
-	int thresholdValue = 40;
+	int thresholdValue = 105;
 	masking(outsideCircles_[0], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 	
 
+
 	// unten rechts
-	thresholdValue = 40;
+	thresholdValue = 20;
 	masking(outsideCircles_[1], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 
 
 
 	//oben rechts
-	thresholdValue = 40;
+	thresholdValue = 60;
 	masking(outsideCircles_[2], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 
 	// unten links
-	thresholdValue = 40;
+	thresholdValue = 50;
 	masking(outsideCircles_[3], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 
 
 
 
 
-	mmMask = mmToPixels(smallCirlceSize_) * 3;
+
+	mmMask = mmToPixels(smallCirlceSize_) * 1.2;
+	isVertical_= true;
+	if(isVertical_)
+	{
 	//oben 
-	thresholdValue = 40;
+	thresholdValue = 50;
 	masking(centralCircles_[0], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 
 	// unten 
-	thresholdValue = 40;
+	thresholdValue = 50;
 	masking(centralCircles_[1], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
-
+	} 
+	else
+	{
 
 	//links 
 	thresholdValue = 40;
@@ -121,7 +129,12 @@ void CircleDetection::findCircles()
 	// rechts 
 	thresholdValue = 40;
 	masking(centralCircles_[3], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
+	}
 
+	for (int i = 0; i < circles_.size(); i++)
+	{
+		std::cout << pixelsToMM(circles_[i][2] * 2) << std::endl;
+	}
 
 	/*
 
@@ -183,12 +196,22 @@ void CircleDetection::masking(cv::Point2f pos, int thresholdValue, int minSizeCi
 
 	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
 	cv::circle(mask, pos, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
-	cv::threshold(imgTemp, imgTemp, 40, 255, CV_THRESH_BINARY);
+	cv::threshold(imgTemp, imgTemp, thresholdValue, 255, CV_THRESH_BINARY);
+	cv::namedWindow("Thresh", CV_WINDOW_NORMAL);
+	cv::imshow("Thresh", imgTemp);
 	cv::bitwise_or(imgTemp, mask, imgTemp);
+	cv::namedWindow("bitwise", CV_WINDOW_NORMAL);
+	cv::imshow("bitwise", imgTemp);
 
 	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
 	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
 	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
+	cv::Mat img = drawCircles();
+
+	draw_rotated_rect(img, rotetedRect_, cv::Scalar(255, 255, 255));
+
+	cv::namedWindow("Circles", CV_WINDOW_NORMAL);
+	cv::imshow("Circles", img);
 }
 
 cv::Mat CircleDetection::drawCircles()
@@ -205,6 +228,28 @@ cv::Mat CircleDetection::drawCircles()
 		// circle outline
 		cv::circle(imgTemp, center, radius, cv::Scalar(255, 255, 255), 2, 8, 0);
 	}
+	
+	for (size_t i = 0; i < outsideCircles_.size(); i++)
+	{
+		cv::Point center(cvRound(outsideCircles_[i].x), cvRound(outsideCircles_[i].y));
+	//	int radius = cvRound(3);
+		// circle center
+		cv::circle(imgTemp, center, 3, cv::Scalar(120, 120, 120), -1, 8, 0);
+		// circle outline
+	//	cv::circle(imgTemp, center, radius, cv::Scalar(120, 120, 120), 2, 8, 0);
+	}
+
+	for (size_t i = 0; i < centralCircles_.size(); i++)
+	{
+		cv::Point center(cvRound(centralCircles_[i].x), cvRound(centralCircles_[i].y));
+		//int radius = cvRound(3);
+		// circle center
+		cv::circle(imgTemp, center, 3, cv::Scalar(120, 120, 120), -1, 8, 0);
+		// circle outline
+	//	cv::circle(imgTemp, center, radius, cv::Scalar(120, 120, 120), 2, 8, 0);
+	}
+	
+
 	return imgTemp;
 }
 
@@ -305,7 +350,8 @@ int CircleDetection::findClosestCirlce(cv::Point2f calculatedPosition)
 			indexOfClosestCircle = i;
 		}
 	}
-	//std::cout << pixelsToMM(distance) << std::endl;
+
+	std::cout << pixelsToMM(distance) << std::endl;
 	return indexOfClosestCircle;
 }
 
@@ -434,7 +480,7 @@ void CircleDetection::checkCircles()
 		{
 			int id = foundCircles2[i];
 			double radius = circles_[id][2];
-			if (radius - smallCirlceSizeinPixels <= toleranceValueInPixles)
+			if (radius - smallCirlceSizeinPixels <= toleranceValueInPixles / 2)
 			{
 				correctCircles_[id] = true;
 				correctCenterCircles_[i] = true;
@@ -480,7 +526,7 @@ void CircleDetection::checkCircles()
 			continue;
 		}
 		double radius = circles_[id][2];
-		if (radius - bigCirlceSizeInPixels <= toleranceValueInPixles) {
+		if (radius - bigCirlceSizeInPixels <= toleranceValueInPixles /2) {
 			if (i < 2) {
 				sizeLeftTop = bigCirlceSizeInPixels;
 				sizeRightTop = smallCirlceSizeinPixels;
@@ -492,7 +538,7 @@ void CircleDetection::checkCircles()
 			break;
 		}
 
-		if (radius - smallCirlceSizeinPixels <= toleranceValueInPixles)
+		if (radius - smallCirlceSizeinPixels <= toleranceValueInPixles /2)
 		{
 			if (i < 2) {
 				sizeLeftTop = smallCirlceSizeinPixels;
@@ -522,7 +568,7 @@ void CircleDetection::checkCircles()
 
 
 		if (i < 2) {
-			if (radius - sizeLeftTop <= toleranceValueInPixles)
+			if (radius - sizeLeftTop <= toleranceValueInPixles /2)
 			{
 				correctCircles_[id] = true;
 			}
@@ -532,7 +578,7 @@ void CircleDetection::checkCircles()
 			}
 		}
 		else {
-			if (radius - sizeRightTop <= toleranceValueInPixles)
+			if (radius - sizeRightTop <= toleranceValueInPixles /2)
 			{
 				correctCircles_[id] = true;
 			}
