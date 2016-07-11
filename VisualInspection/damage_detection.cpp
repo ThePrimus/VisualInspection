@@ -135,8 +135,8 @@ bool broken_bridge(Mat* image, RotatedRect rect) {
 	
 	threshold(bridge, bridgeThreshold, 50, 255, THRESH_BINARY);
 
-	namedWindow("bridge", WINDOW_NORMAL);
-	imshow("bridge", bridgeThreshold);
+	//namedWindow("bridge", WINDOW_NORMAL);
+	//imshow("bridge", bridgeThreshold);
 
 
 	int whitePixel = (int)sum(bridgeThreshold)[0] / 255;
@@ -159,6 +159,7 @@ bool detect_damage(Mat* image, RotatedRect rect, vector<Vec3f> circles, int thre
 	Mat workpiece, workpiece_filter, workpiece_canny, workpiece_dilate, output_image;
 	bool error = false;
 
+	image->convertTo(workpiece_filter, -1, 1.5, 0);
 	image->convertTo(workpiece, -1, 1.5, 0);
 
 	//namedWindow("brightness", WINDOW_NORMAL);
@@ -166,8 +167,9 @@ bool detect_damage(Mat* image, RotatedRect rect, vector<Vec3f> circles, int thre
 
 	error = broken_bridge(&workpiece, rect);
 
-	GaussianBlur(workpiece, workpiece_filter, Size(7,7), 10);
+	//GaussianBlur(workpiece_filter, workpiece_filter, Size(7,7), 10);
 	guided_filter(workpiece_filter, &workpiece_filter);
+
 
 	namedWindow("filter", WINDOW_NORMAL);
 	imshow("filter", workpiece_filter);
@@ -196,8 +198,8 @@ bool detect_damage(Mat* image, RotatedRect rect, vector<Vec3f> circles, int thre
 
 	remove_circles(workpiece_canny, &workpiece_canny, circles, radius_extension);
 
-	//namedWindow("removed", WINDOW_NORMAL);
-	//imshow("removed", workpiece_canny);
+	namedWindow("removed", WINDOW_NORMAL);
+	imshow("removed", workpiece_canny);
 
 	int errors = clusters(&workpiece_canny, image, min_cluster_size);
 

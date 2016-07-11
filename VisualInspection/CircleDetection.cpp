@@ -470,8 +470,8 @@ void CircleDetection::calculateExpectedCirclePositions()
 	pos =  cv::Point2f(pixels, pixels);
 
 	cv::circle(bridge, pos, 3, cv::Scalar(255, 255, 255), -1, 8, 0);
-	cv::namedWindow("rotated", CV_WINDOW_NORMAL);
-	cv::imshow("rotated", bridge);
+	//cv::namedWindow("rotated", CV_WINDOW_NORMAL);
+	//cv::imshow("rotated", bridge);
 
 
 	//buttom right

@@ -64,8 +64,8 @@ Mat image_preprocessing(Mat img) {
 	//waitKey(0);
 
 	cv::threshold(result, result, 70, 255, THRESH_BINARY);
-	cv::imshow(window_name, result);
-	waitKey(0);
+	//cv::imshow(window_name, result);
+	//waitKey(0);
 
 	int erosion_size = 3;
 	Mat element = getStructuringElement(MORPH_RECT,
@@ -133,8 +133,8 @@ bool detect_quad(Mat in, double thresh_accuracy, double alpha, double beta, doub
 			*out_cont = cont;
 
 		draw_quad_info(in, &rect, Scalar(255, 0, 0), NULL, Scalar(255, 0, 0));
-		cv::imshow(window_name, in);
-		waitKey(0);
+		//cv::imshow(window_name, in);
+		//waitKey(0);
 
 		if (check_quad_size(rect, PX2CM, thresh_accuracy, side_length)) {
 			return true;

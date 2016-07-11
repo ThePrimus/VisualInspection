@@ -181,6 +181,7 @@ void test_image(Mat img, bool show) {
 		cd.findCircles();
 		cd.checkCircles();
 		result_circle_detection = cd.isModelCorrect();
+
 		/*
 		Mat circles1 = cd.drawCircles();
 		namedWindow("circles", WINDOW_NORMAL);
@@ -192,7 +193,7 @@ void test_image(Mat img, bool show) {
 
 		if (result_circle_detection || check_everything) {
 			//damage detection
-			bool result_damage_detection = !detect_damage(&workpiece, rect, circles, 50, 30, 25, 15);
+			bool result_damage_detection = !detect_damage(&workpiece, rect, circles, 80, 30, 30, 30);
 			cout << "Damage detection: " << (result_damage_detection ? "OK" : "FAILED") << endl;
 		}
 	}
