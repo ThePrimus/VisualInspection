@@ -82,23 +82,23 @@ void CircleDetection::findCircles()
 	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
 	*/
 
-	int thresholdValue = 105;
+	int thresholdValue = 70; //105
 	masking(outsideCircles_[0], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 	
 
 
 	// unten rechts
-	thresholdValue = 20;
+	thresholdValue = 50; //20
 	masking(outsideCircles_[1], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 
 
 
 	//oben rechts
-	thresholdValue = 60;
+	thresholdValue = 60; //60
 	masking(outsideCircles_[2], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 
 	// unten links
-	thresholdValue = 50;
+	thresholdValue = 50; // 50
 	masking(outsideCircles_[3], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 
 
@@ -111,23 +111,23 @@ void CircleDetection::findCircles()
 	if(isVertical_)
 	{
 	//oben 
-	thresholdValue = 50;
+	thresholdValue = 70; // 50
 	masking(centralCircles_[0], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 
 	// unten 
-	thresholdValue = 50;
+	thresholdValue = 70; // 50
 	masking(centralCircles_[1], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 	} 
 	else
 	{
 
 	//links 
-	thresholdValue = 40;
+	thresholdValue = 70; // 40
 	masking(centralCircles_[2], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 
 
 	// rechts 
-	thresholdValue = 40;
+	thresholdValue = 70; // 40
 	masking(centralCircles_[3], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 	}
 
@@ -210,8 +210,8 @@ void CircleDetection::masking(cv::Point2f pos, int thresholdValue, int minSizeCi
 
 	draw_rotated_rect(img, rotetedRect_, cv::Scalar(255, 255, 255));
 
-	//cv::namedWindow("Circles", CV_WINDOW_NORMAL);
-	//cv::imshow("Circles", img);
+	cv::namedWindow("Circles", CV_WINDOW_NORMAL);
+	cv::imshow("Circles", img);
 }
 
 cv::Mat CircleDetection::drawCircles()
@@ -249,6 +249,15 @@ cv::Mat CircleDetection::drawCircles()
 	//	cv::circle(imgTemp, center, radius, cv::Scalar(120, 120, 120), 2, 8, 0);
 	}
 	
+	cv::Point2f vertices[4];
+	rotetedRect_.points(vertices);
+	for (size_t i = 0; i < 4; i++)
+	{
+		//cv::line(imgTemp, rotetedRect_.center, vertices[i], cv::Scalar(120, 120, 120), 1);
+	}
+
+	cv::line(imgTemp, vertices[0], vertices[2], cv::Scalar(120, 120, 120), 1);
+	cv::line(imgTemp, vertices[1], vertices[3], cv::Scalar(120, 120, 120), 1);
 
 	return imgTemp;
 }
@@ -425,12 +434,12 @@ void CircleDetection::calculateExpectedCirclePositions()
 	getRectSubPix(rotated, rect_size, rotetedRect_.center, bridge);
 
 
-	double pixels = mmToPixels(1);
-	pos = vertices[tl] - cv::Point2f(pixels, pixels);
+	double pixels = mmToPixels(10);
+	pos =  cv::Point2f(pixels, pixels);
 
-	cv::circle(rotated, pos, 3, cv::Scalar(255, 255, 255), -1, 8, 0);
+	cv::circle(bridge, pos, 3, cv::Scalar(255, 255, 255), -1, 8, 0);
 	cv::namedWindow("rotated", CV_WINDOW_NORMAL);
-	cv::imshow("rotated", rotated);
+	cv::imshow("rotated", bridge);
 
 
 	//buttom right

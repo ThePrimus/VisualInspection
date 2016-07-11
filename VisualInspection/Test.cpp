@@ -75,14 +75,14 @@ int main(int argc, char* argv[]) {
 	is_SetImageSize(hCam, img_width, img_height);
 	double enable = 1;
 	double disable = 0;
-	is_SetAutoParameter(hCam, IS_SET_ENABLE_AUTO_GAIN, &enable, 0);
-	is_SetAutoParameter(hCam, IS_SET_ENABLE_AUTO_WHITEBALANCE, &enable, 0);
+	is_SetAutoParameter(hCam, IS_SET_ENABLE_AUTO_GAIN, &disable, 0);
+	is_SetAutoParameter(hCam, IS_SET_ENABLE_AUTO_WHITEBALANCE, &disable, 0);
 	is_SetAutoParameter(hCam, IS_SET_ENABLE_AUTO_FRAMERATE, &disable, 0);
 	is_SetAutoParameter(hCam, IS_SET_ENABLE_AUTO_SHUTTER, &disable, 0);
-	is_SetAutoParameter(hCam, IS_SET_ENABLE_AUTO_SENSOR_GAIN, &enable, 0);
-	is_SetAutoParameter(hCam, IS_SET_ENABLE_AUTO_SENSOR_WHITEBALANCE, &enable, 0);
+	is_SetAutoParameter(hCam, IS_SET_ENABLE_AUTO_SENSOR_GAIN, &disable, 0);
+	is_SetAutoParameter(hCam, IS_SET_ENABLE_AUTO_SENSOR_WHITEBALANCE, &disable, 0);
 	is_SetAutoParameter(hCam, IS_SET_ENABLE_AUTO_SENSOR_SHUTTER, &disable, 0);
-
+	is_SetGamma(hCam, 150);
 	}
 	Mat source_image = imread(filepath);
 
@@ -228,10 +228,7 @@ double calibrate_px2cm(Mat img, double calibration_length) {
 	vector<Pvec> contours;
 	vector<Vec4i> hierarchy;
 
-	//img.convertTo(img, -1, 2.0, 50);
-	/// Detect edges using canny
-	auto tresh = 100;
-	Canny(img, canny_output, tresh, tresh * 2, 3);
+	canny_output = image_preprocessing(img);
 	/// Find contours
 	findContours(canny_output, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_SIMPLE, Point(0, 0));
 	std::sort(contours.begin(), contours.end(), [](const Pvec& a, const Pvec& b) { return minAreaRect(a).size.area() > minAreaRect(b).size.area(); });

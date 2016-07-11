@@ -57,15 +57,15 @@ bool check_quad_size(const RotatedRect& rect, const double px2cm, const double t
 Mat image_preprocessing(Mat img) {
 	Mat result;
 
-	//in.convertTo(img, -1, 1, 0);
-	cv::threshold(img, result, 170, 0, THRESH_TOZERO_INV);
+	img.convertTo(result, -1, 1.5, 0);
+	cv::threshold(result, result, 200, 0, THRESH_TOZERO_INV);
 	//cv::namedWindow("test", WINDOW_NORMAL);
 	//cv::imshow("test", result);
 	//waitKey(0);
 
-	cv::threshold(result, result, 60, 255, THRESH_BINARY);
-	//cv::imshow("test", result);
-	//waitKey(0);
+	cv::threshold(result, result, 70, 255, THRESH_BINARY);
+	cv::imshow(window_name, result);
+	waitKey(0);
 
 	int erosion_size = 3;
 	Mat element = getStructuringElement(MORPH_RECT,
