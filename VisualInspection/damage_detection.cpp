@@ -135,6 +135,9 @@ bool broken_bridge(Mat* image, RotatedRect rect) {
 	
 	threshold(bridge, bridgeThreshold, 50, 255, THRESH_BINARY);
 
+	namedWindow("bridge", WINDOW_NORMAL);
+	imshow("bridge", bridgeThreshold);
+
 
 	int whitePixel = (int)sum(bridgeThreshold)[0] / 255;
 	int blackPixel = bridgeThreshold.rows * bridgeThreshold.cols - whitePixel;
@@ -142,6 +145,7 @@ bool broken_bridge(Mat* image, RotatedRect rect) {
 	//cout << "pixel: " << whitePixel << " " << blackPixel << endl;
 	
 	if (whitePixel < blackPixel) {
+		cout << "steg kaputt!" << endl;
 		//draw error rect
 		Rect errorRect = Rect(Point2f(rect.center.x - 20, rect.center.y - 20), Size2f(40,40));
 		rectangle(*image, errorRect, Scalar(0, 255, 0), 2);
@@ -165,8 +169,8 @@ bool detect_damage(Mat* image, RotatedRect rect, vector<Vec3f> circles, int thre
 	GaussianBlur(workpiece, workpiece_filter, Size(7,7), 10);
 	guided_filter(workpiece_filter, &workpiece_filter);
 
-	//namedWindow("filter", WINDOW_NORMAL);
-	//imshow("filter", workpiece_filter);
+	namedWindow("filter", WINDOW_NORMAL);
+	imshow("filter", workpiece_filter);
 
 	/*
 	//draw rectangle (testing)
@@ -185,8 +189,8 @@ bool detect_damage(Mat* image, RotatedRect rect, vector<Vec3f> circles, int thre
 	
 
 	canny_detection(&workpiece_filter, &workpiece_canny, threshold);
-	//namedWindow("canny", WINDOW_NORMAL);
-	//imshow("canny", workpiece_canny);
+	namedWindow("canny", WINDOW_NORMAL);
+	imshow("canny", workpiece_canny);
 
 	remove_edges(workpiece_canny, &workpiece_canny, rect, rectangle_line_size);
 
