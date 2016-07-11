@@ -104,7 +104,7 @@ void CircleDetection::findCircles()
 
 
 
-	mmMask = mmToPixels(smallCirlceSize_) * 1.2;
+	mmMask = mmToPixels(smallCirlceSize_) * 2;
 	isVertical_= true;
 
 
@@ -127,13 +127,16 @@ void CircleDetection::findCircles()
 		int radius = cvRound(mmMask);                              // Radius is the third parameter [i][0] = x [i][1]= y [i][2] = radius
 		cv::circle(mask, center, radius, cv::Scalar(0, 0, 0), -1, 8, 0);    // Circle(img, center, radius, color, thickness=1, lineType=8, shift=0)	
 	}
+
 	
 	
 	cv::threshold(imgTemp, imgTemp, thresholdValue, 255, CV_THRESH_BINARY);
 	cv::bitwise_or(imgTemp, mask, imgTemp);
+	namedWindow("mask_n", WINDOW_NORMAL);
+	imshow("mask_n", imgTemp);
 
 	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
-	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
+	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist-50, 100, 25, minSizeCircles, maxSizeCircles);
 	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
 
 	for (int i = 0; i < circles_.size(); i++)
