@@ -314,6 +314,7 @@ double CircleDetection::mmToPixels(double mm) {
 
 cv::Point2f CircleDetection::getPositionOfOuterCircle(cv::Point2f center, cv::Point2f circleCenter)
 {
+
 	double dir_x = center.x - circleCenter.x;
 	double dir_y = center.y - circleCenter.y;
 	double norm = sqrt(dir_x*dir_x + dir_y*dir_y);
@@ -405,6 +406,31 @@ void CircleDetection::calculateExpectedCirclePositions()
 	//top left
 	cv::Point2f pos = getPositionOfOuterCircle(rotetedRect_.center, vertices[tl]); // 2 // 1
 	outsideCircles_.push_back(pos);
+
+
+	// matrices we'll use
+	Mat M, rotated, bridge, bridgeThreshold;
+	// get angle and size from the bounding box
+	float angle = rotetedRect_.angle;
+	Size rect_size = rotetedRect_.size;
+	if (rotetedRect_.angle < -45.) {
+		angle += 90.0;
+		swap(rect_size.width, rect_size.height);
+	}
+	// get the rotation matrix
+	M = getRotationMatrix2D(rotetedRect_.center, angle, 1.0);
+	// perform the affine transformation
+	warpAffine(img_, rotated, M, img_.size(), INTER_CUBIC);
+	// crop the resulting image
+	getRectSubPix(rotated, rect_size, rotetedRect_.center, bridge);
+
+
+	double pixels = mmToPixels(1);
+	pos = vertices[tl] - cv::Point2f(pixels, pixels);
+
+	cv::circle(rotated, pos, 3, cv::Scalar(255, 255, 255), -1, 8, 0);
+	cv::namedWindow("rotated", CV_WINDOW_NORMAL);
+	cv::imshow("rotated", rotated);
 
 
 	//buttom right
