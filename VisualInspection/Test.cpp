@@ -28,7 +28,7 @@ char* window_name = "Visual Inspection";
 bool IS_CALIBRATED = true;
 double PX2CM = 0.00664624;
 
-const bool test_from_filepath = true;
+const bool test_from_filepath = false;
 const bool test_test_routine = false;
 const string filepath = "Images/Neue Beleuchtung/KaputterSteg2.png"; 
 //const string filepath = "Images/Neue Beleuchtung/Perfekt2.png";
@@ -150,7 +150,7 @@ void test_image(Mat img, bool show) {
 	bool result_circle_detection = false;
 	bool result_damage_detection = false;
 
-	bool check_everything = true;
+	bool check_everything = false;
 
 	cout << "==========" << endl;
 	//quad detection
@@ -159,6 +159,7 @@ void test_image(Mat img, bool show) {
 	cout << "Quad detection: " << (result_quad_detect ? "OK" : "FAILED") << endl;
 
 	if (result_quad_detect || check_everything) {
+
 
 		//circle detection
 		double conversion = 0.1 / PX2CM; // 1mm in pixel
