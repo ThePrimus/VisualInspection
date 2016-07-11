@@ -72,6 +72,16 @@ int main(int argc, char* argv[]) {
 	is_SetDisplayMode(hCam, IS_SET_DM_DIB);
 	is_SetColorMode(hCam, IS_CM_RGB8_PACKED);
 	is_SetImageSize(hCam, img_width, img_height);
+	double enable = 1;
+	double disable = 0;
+	is_SetAutoParameter(hCam, IS_SET_ENABLE_AUTO_GAIN, &enable, 0);
+	is_SetAutoParameter(hCam, IS_SET_ENABLE_AUTO_WHITEBALANCE, &enable, 0);
+	is_SetAutoParameter(hCam, IS_SET_ENABLE_AUTO_FRAMERATE, &disable, 0);
+	is_SetAutoParameter(hCam, IS_SET_ENABLE_AUTO_SHUTTER, &disable, 0);
+	is_SetAutoParameter(hCam, IS_SET_ENABLE_AUTO_SENSOR_GAIN, &enable, 0);
+	is_SetAutoParameter(hCam, IS_SET_ENABLE_AUTO_SENSOR_WHITEBALANCE, &enable, 0);
+	is_SetAutoParameter(hCam, IS_SET_ENABLE_AUTO_SENSOR_SHUTTER, &disable, 0);
+
 	}
 	Mat source_image = imread(filepath);
 
