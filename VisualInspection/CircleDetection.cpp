@@ -495,8 +495,6 @@ void CircleDetection::checkCircles()
 		}
 	}
 
-	std::cout << "bla" << std::endl;
-
 	if (isCorrect_ == false)
 	{
 		return;
@@ -548,11 +546,6 @@ void CircleDetection::checkCircles()
 			}
 		}
 	}
-
-
-
-	std::cout << "bla" << std::endl;
-
 }
 
 
