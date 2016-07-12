@@ -513,10 +513,17 @@ void CircleDetection::checkCircles()
 			} 
 		} 
 		else
-		{ // top right and buttom left arent same size so they are wrong
-			correctOutsideCircles_[2] = false;
-			correctOutsideCircles_[3] = false;
-			isCorrect_ = false;
+		{ // top right and buttom left arent same size so check which is wrong
+			if (circleSizes[0] == circleSizes[2])
+			{
+				correctOutsideCircles_[2] = false;
+				isCorrect_ = false;
+			}
+			else
+			{
+				correctOutsideCircles_[3] = false;
+				isCorrect_ = false;
+			}
 		}
 	}
 	else // top left != buttom right
