@@ -28,9 +28,9 @@ char* window_name = "Visual Inspection";
 bool IS_CALIBRATED = true;
 double PX2CM = 0.00664624;
 
-const bool test_from_filepath = false;
+const bool test_from_filepath = true;
 const bool test_test_routine = false;
-const string filepath = "Images/Neue Beleuchtung/KaputterSteg2.png"; 
+const string filepath = "Images/Neue Beleuchtung/Kalibrierung1.png"; 
 //const string filepath = "Images/Neue Beleuchtung/Perfekt2.png";
 //const string filepath = "Images/Neue Beleuchtung/circles_test.png";
 //const string filepath = "Images/Neue Beleuchtung/KaputteEcke3.png";
@@ -61,7 +61,7 @@ int main(int argc, char* argv[]) {
 	HIDS hCam = 1; // 0
 	char* imgMem;
 	int memId;
-	int img_width = 2048, img_height = 1536, img_bpp = 24, img_step, img_data_size;
+	int img_width = 2048, img_height = 1536, img_bpp = 24;
 
 	if (!test_from_filepath && (is_InitCamera(&hCam, NULL) != IS_SUCCESS)) {
 		return 0;
@@ -161,7 +161,7 @@ void test_image(Mat img, bool show) {
 	bool result_circle_detection = false;
 	bool result_damage_detection = false;
 
-	bool check_everything = true;
+	bool check_everything = false;
 
 	cout << "==========" << endl;
 	//quad detection
@@ -213,6 +213,8 @@ void test_image(Mat img, bool show) {
 				}
 			//}
 		} else {
+			Mat color_workpiece;
+			cv::cvtColor(workpiece, color_workpiece, CV_GRAY2RGB);
 			draw_quad_info(workpiece, &rect, Scalar(255, 0, 0), &contour, Scalar(0, 255, 0));
 			imshow(window_name, workpiece);
 			waitKey(0);
