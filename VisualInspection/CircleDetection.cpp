@@ -4,8 +4,6 @@
 #define PI 3.14159265
 
 
-
-bool correctCircles_[];
 bool correctCenterCircles_[4] = { true, true, true, true };
 bool correctOutsideCircles_[4] = { true, true, true, true };
 
@@ -119,13 +117,6 @@ void CircleDetection::findCircles()
 	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist-50, 100, 25, minSizeCircles, maxSizeCircles);
 	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
 
-	int size = circles_.size();
-
-	correctCircles_.clear();
-	for (int i = 0; i < size; i++) {
-		correctCircles_.push_back(false);
-	}
-
 }
 
 
@@ -205,21 +196,8 @@ cv::Mat  CircleDetection::drawErrors()
 	cv::Mat imgTemp = img_.clone();
 	cv::cvtColor(imgTemp, imgTemp, CV_GRAY2RGB);
 	/// Draw the circles detected
-	for (size_t i = 0; i < circles_.size(); i++)
-	{
-		cv::Point center(cvRound(circles_[i][0]), cvRound(circles_[i][1]));
-		int radius = cvRound(circles_[i][2]);
 
-		// draw box around circle if circle isn't correct
-		if (!correctCircles_[i]) 
-		{
-			rectangle(imgTemp, cv::Point(center.x + radius + 5, center.y + radius + 5), cv::Point(center.x - radius - 5, center.y - radius - 5), cv::Scalar(0, 0, 255), 2, 8, 0);
-		}
-	}
-
-	if (circles_.size() < circleAmount_) 
-	{
-		for (int i = 0; i < centralCircles_.size(); i++) 
+	for (int i = 0; i < centralCircles_.size(); i++) 
 		{
 			double radius = mmToPixels(smallCirlceSize_);
 			if (!correctCenterCircles_[i])
@@ -232,7 +210,7 @@ cv::Mat  CircleDetection::drawErrors()
 				rectangle(imgTemp, cv::Point(outsideCircles_[i].x + radius + 5, outsideCircles_[i].y + radius + 5), cv::Point(outsideCircles_[i].x - radius - 5, outsideCircles_[i].y - radius - 5), cv::Scalar(0, 0, 255), 2, 8, 0);
 			}
 		}
-	}
+
 	return imgTemp;
 }
 
@@ -455,11 +433,9 @@ void CircleDetection::checkCircles()
 			diff = diff*2;
 			if (diff <= circleSizeTolerance_)
 			{
-				correctCircles_[id] = true;
 				correctCenterCircles_[i] = true;
 			}
 			else {
-				correctCircles_[id] = false;
 				correctCenterCircles_[i] = false;
 				isCorrect_ = false;
 			}
@@ -483,61 +459,12 @@ void CircleDetection::checkCircles()
 	foundCircles.push_back(closestCirlceLeftButtom);
 
 
-
-
-
-
-
-	double  sizeLeftTop = bigCirlceSize_;
-	double sizeRightTop = smallCirlceSize_;
+	double circleSizes[4];
 
 	for (int i = 0; i < foundCircles.size(); i++) {
 		int id = foundCircles[i];
 		if (id == -1) {
-			correctOutsideCircles_[0] = false;
-			isCorrect_ = false;
-			continue;
-		}
-		double radius = circles_[id][2];
-		radius = pixelsToMM(radius);
-		double diff = abs(radius - smallCirlceSize_);
-		diff = diff*2;
-		if (diff <= circleSizeTolerance_)
-		{
-			if (i < 2) {
-				sizeLeftTop = smallCirlceSize_;
-				sizeRightTop = bigCirlceSize_;
-				break;
-			}
-			else {
-				sizeLeftTop = bigCirlceSize_;
-				sizeRightTop = smallCirlceSize_;
-				break;
-			}
-		}
-
-		if (diff <= circleSizeTolerance_) {
-
-			if (i < 2) {
-				sizeLeftTop = bigCirlceSize_;
-				sizeRightTop = smallCirlceSize_;
-				break;
-			} else{
-				sizeLeftTop = smallCirlceSize_;
-				sizeRightTop = bigCirlceSize_;
-				break;
-			}
-		}
-
-
-
-	}
-
-
-
-	for (int i = 0; i < foundCircles.size(); i++) {
-		int id = foundCircles[i];
-		if (id == -1) {
+			circleSizes[i] = -1;
 			correctOutsideCircles_[i] = false;
 			isCorrect_ = false;
 			continue;
@@ -545,40 +472,86 @@ void CircleDetection::checkCircles()
 
 		double radius = circles_[id][2];
 		radius = pixelsToMM(radius);
+		double diffSmall = abs(radius - smallCirlceSize_);
+		diffSmall = diffSmall * 2;
 
 
-		if (i < 2) {
+		double diffBig = abs(radius - bigCirlceSize_);
+		diffBig = diffBig * 2;
 
-			double diff = abs(radius - sizeLeftTop);
-			diff = diff * 2;
-			std::cout << "Size: " << radius * 2 << std::endl;
-			std::cout << "Diff: " << diff << std::endl;
-			if (diff <= circleSizeTolerance_)
-			{
-				correctCircles_[id] = true;
-			}
-			else
-			{
-				isCorrect_ = false;
-			}
+		if (diffSmall <= circleSizeTolerance_)
+		{
+			circleSizes[i] = smallCirlceSize_;
 		}
-		else {
-
-			double diff = abs(radius - sizeRightTop);
-			diff = diff * 2;
-			std::cout << "Size: " << radius * 2 << std::endl;
-			std::cout << "Diff: " << diff << std::endl;
-			if (diff <= circleSizeTolerance_)
-			{
-				correctCircles_[id] = true;
-			}
-			else
-			{
-				isCorrect_ = false;
-			}
+		else if (diffBig <= circleSizeTolerance_)
+		{
+			circleSizes[i] = bigCirlceSize_;
 		}
-
+		else
+		{
+			circleSizes[i] = -1;
+			correctOutsideCircles_[i] = false;
+			isCorrect_ = false;
+		}
 	}
+
+	std::cout << "bla" << std::endl;
+
+	if (isCorrect_ == false)
+	{
+		return;
+	}
+
+	if (circleSizes[0] == circleSizes[1]) // top left == buttom right
+	{
+
+		if (circleSizes[2] == circleSizes[3]) //  top right == buttom left
+		{
+			if (circleSizes[0] == circleSizes[2]) // top right == top left
+			{// all are same size so mark top right and buttom left as wrong
+				correctOutsideCircles_[2] = false;
+				correctOutsideCircles_[3] = false;
+				isCorrect_ = false;
+			} 
+		} 
+		else
+		{ // top right and buttom left arent same size so they are wrong
+			correctOutsideCircles_[2] = false;
+			correctOutsideCircles_[3] = false;
+			isCorrect_ = false;
+		}
+	}
+	else // top left != buttom right
+	{
+		isCorrect_ = false;
+		if (circleSizes[2] != circleSizes[3]) // top right != buttom left
+		{ // mark all as false cause can't decide which is correct
+				correctOutsideCircles_[0] = false;
+				correctOutsideCircles_[1] = false;
+				correctOutsideCircles_[2] = false;
+				correctOutsideCircles_[3] = false;
+				isCorrect_ = false;
+		} 
+		else // top right == buttom left
+		{
+			if (circleSizes[0] != circleSizes[2]) // top left != top left
+			{
+				// therefor buttom right must be false
+				correctOutsideCircles_[1] = false;
+				isCorrect_ = false;
+			} 
+			else // top left == top right
+			{ // therefor top left must be false
+				correctOutsideCircles_[0] = false;
+				isCorrect_ = false;
+
+			}
+		}
+	}
+
+
+
+	std::cout << "bla" << std::endl;
 
 }
 
