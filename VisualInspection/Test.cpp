@@ -28,12 +28,12 @@ char* window_name = "Visual Inspection";
 bool IS_CALIBRATED = true;
 double PX2CM = 0.00664624;
 
-const bool test_from_filepath = true;
+const bool test_from_filepath = false;
 const bool test_test_routine = false;
-const string filepath = "Images/Neue Beleuchtung/Kalibrierung1.png"; 
+//const string filepath = "Images/Neue Beleuchtung/Perfekt3.png"; 
 //const string filepath = "Images/Neue Beleuchtung/Perfekt2.png";
 //const string filepath = "Images/Neue Beleuchtung/circles_test.png";
-//const string filepath = "Images/Neue Beleuchtung/KaputteEcke3.png";
+const string filepath = "Renderings/Perfekt3.png";
 const string calibration_image = "Images/Neue Beleuchtung/Kalibrierung1.png"; 
 const double calibration_value = 2.0;
 const string IMAGE_FOLDER = "./Images/Neue Beleuchtung/resized";
@@ -110,7 +110,7 @@ int main(int argc, char* argv[]) {
 		if (image_to_test.rows > 0) {
 			imshow(window_name, image_to_test);
 		}
-		int key = waitKey(30);
+		int key = waitKey(10);
 
 		if (key == 'e')
 			break;
@@ -166,6 +166,7 @@ void test_image(Mat img, bool show) {
 	cout << "==========" << endl;
 	//quad detection
 	Mat workpiece = img;
+	Mat output_damage;
 	result_quad_detect = detect_quad(workpiece, 0.25, 2, 50, 8, &rect, &contour);
 	cout << "Quad detection: " << (result_quad_detect ? "OK" : "FAILED") << endl;
 
@@ -193,7 +194,7 @@ void test_image(Mat img, bool show) {
 
 		if (result_circle_detection || check_everything) {
 			//damage detection
-			bool result_damage_detection = !detect_damage(&workpiece, rect, circles, 80, 30, 30, 15);
+			bool result_damage_detection = !detect_damage(&workpiece, &output_damage, rect, circles, 80, 30, 30, 25);
 			cout << "Damage detection: " << (result_damage_detection ? "OK" : "FAILED") << endl;
 		}
 	}
@@ -205,18 +206,18 @@ void test_image(Mat img, bool show) {
 				imshow(window_name, circle_error);
 				waitKey(0);
 			}
-			//else { // true!
+			else { // true!
 				if (!result_damage_detection) {
-					namedWindow("damage", WINDOW_NORMAL);
-					imshow("damage", workpiece);
+					//namedWindow("damage", WINDOW_NORMAL);
+					imshow(window_name, output_damage);
 					waitKey(0);
 				}
-			//}
+			}
 		} else {
 			Mat color_workpiece;
 			cv::cvtColor(workpiece, color_workpiece, CV_GRAY2RGB);
-			draw_quad_info(workpiece, &rect, Scalar(255, 0, 0), &contour, Scalar(0, 255, 0));
-			imshow(window_name, workpiece);
+			draw_quad_info(color_workpiece, &rect, Scalar(0, 0, 255), NULL, Scalar(0, 255, 0));
+			imshow(window_name, color_workpiece);
 			waitKey(0);
 		}
 	}

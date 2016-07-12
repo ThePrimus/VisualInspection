@@ -5,6 +5,7 @@
 #include "opencv2/imgproc/imgproc.hpp"
 
 #include <array>
+#include <iostream>
 
 using namespace cv;
 using namespace std;
@@ -16,7 +17,7 @@ void draw_rotated_rect(Mat out, const RotatedRect& rect, Scalar color) {
 	Point2f points[4];
 	rect.points(points);
 	for (int i = 0; i < 4; i++) {
-		line(out, points[i], points[(i + 1) % 4], color, 1);
+		line(out, points[i], points[(i + 1) % 4], color, 3);
 	}
 }
 
@@ -29,8 +30,8 @@ void draw_contour(Mat out, const vector<Point>& contour, Scalar color) {
 void draw_quad_info(Mat out, RotatedRect* rect, Scalar rect_color, vector<Point>* cont, Scalar cont_color) {
 	if (rect)
 		draw_rotated_rect(out, *rect, rect_color);
-	if (cont)
-		draw_contour(out, *cont, cont_color);
+	/*if (cont)
+		draw_contour(out, *cont, cont_color);*/
 
 }
 
@@ -47,6 +48,7 @@ bool check_quad_size(const RotatedRect& rect, const double px2cm, const double t
 		auto length_px = sqrt(diff_p.x * diff_p.x + diff_p.y * diff_p.y);
 		auto length_cm = length_px * px2cm;
 		auto abs_length_diff = abs(length_cm - side_length);
+		std::cout << "detect rect length difference: " << abs_length_diff << std::endl;
 		if (abs_length_diff > thresh_accuracy) {
 			return false;
 		}
@@ -132,7 +134,7 @@ bool detect_quad(Mat in, double thresh_accuracy, double alpha, double beta, doub
 		if (out_cont)
 			*out_cont = cont;
 
-		draw_quad_info(in, &rect, Scalar(255, 0, 0), NULL, Scalar(255, 0, 0));
+		//draw_quad_info(in, &rect, Scalar(255, 0, 0), NULL, Scalar(255, 0, 0));
 		//cv::imshow(window_name, in);
 		//waitKey(0);
 
