@@ -4,8 +4,6 @@
 #define PI 3.14159265
 
 
-
-bool correctCircles_[];
 bool correctCenterCircles_[4] = { true, true, true, true };
 bool correctOutsideCircles_[4] = { true, true, true, true };
 
@@ -14,8 +12,8 @@ CircleDetection::CircleDetection()
 {
 	bigCirlceSize_ = 7 / 2; // in mm
 	smallCirlceSize_ = 5 / 2; // in mm
-	circleSizeTolerance_ = 1; // in mm
-	circlePositionTolerance_ = 3; // in mm
+	circleSizeTolerance_ = 1.5; // in mm
+	circlePositionTolerance_ = 2; // in mm
 	circleAmount_ = 6;
 	isVertical_ = false;
 }
@@ -69,7 +67,7 @@ void CircleDetection::findCircles()
 
 
 	// unten rechts
-	thresholdValue = 50; //20
+	thresholdValue = 40; //20
 	masking(outsideCircles_[1], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 
 
@@ -113,24 +111,12 @@ void CircleDetection::findCircles()
 	
 	cv::threshold(imgTemp, imgTemp, thresholdValue, 255, CV_THRESH_BINARY);
 	cv::bitwise_or(imgTemp, mask, imgTemp);
-	namedWindow("mask_n", WINDOW_NORMAL);
-	imshow("mask_n", imgTemp);
+
 
 	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
 	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist-50, 100, 25, minSizeCircles, maxSizeCircles);
 	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
 
-	for (int i = 0; i < circles_.size(); i++)
-	{
-		std::cout << pixelsToMM(circles_[i][2] * 2) << std::endl;
-	}
-
-	int size = circles_.size();
-
-	correctCircles_.clear();
-	for (int i = 0; i < size; i++) {
-		correctCircles_.push_back(false);
-	}
 }
 
 
@@ -149,7 +135,9 @@ void CircleDetection::masking(cv::Point2f pos, int thresholdValue, int minSizeCi
 	cv::circle(mask, pos, radius, cv::Scalar(0, 0, 0), -1, 8, 0);
 	cv::threshold(imgTemp, imgTemp, thresholdValue, 255, CV_THRESH_BINARY);
 	cv::bitwise_or(imgTemp, mask, imgTemp);
-
+	//namedWindow("mask_n", WINDOW_NORMAL);
+//	imshow("mask_n", imgTemp);
+	//waitKey();
 	cv::GaussianBlur(imgTemp, imgTemp, cv::Size(9, 9), 2, 2);
 	cv::HoughCircles(imgTemp, circTemp, cv::HOUGH_GRADIENT, 1, minDist, 100, 25, minSizeCircles, maxSizeCircles);
 	circles_.insert(circles_.end(), circTemp.begin(), circTemp.end());
@@ -208,21 +196,8 @@ cv::Mat  CircleDetection::drawErrors()
 	cv::Mat imgTemp = img_.clone();
 	cv::cvtColor(imgTemp, imgTemp, CV_GRAY2RGB);
 	/// Draw the circles detected
-	for (size_t i = 0; i < circles_.size(); i++)
-	{
-		cv::Point center(cvRound(circles_[i][0]), cvRound(circles_[i][1]));
-		int radius = cvRound(circles_[i][2]);
 
-		// draw box around circle if circle isn't correct
-		if (!correctCircles_[i]) 
-		{
-			rectangle(imgTemp, cv::Point(center.x + radius + 5, center.y + radius + 5), cv::Point(center.x - radius - 5, center.y - radius - 5), cv::Scalar(0, 0, 255), 2, 8, 0);
-		}
-	}
-
-	if (circles_.size() < circleAmount_) 
-	{
-		for (int i = 0; i < centralCircles_.size(); i++) 
+	for (int i = 0; i < centralCircles_.size(); i++) 
 		{
 			double radius = mmToPixels(smallCirlceSize_);
 			if (!correctCenterCircles_[i])
@@ -235,7 +210,7 @@ cv::Mat  CircleDetection::drawErrors()
 				rectangle(imgTemp, cv::Point(outsideCircles_[i].x + radius + 5, outsideCircles_[i].y + radius + 5), cv::Point(outsideCircles_[i].x - radius - 5, outsideCircles_[i].y - radius - 5), cv::Scalar(0, 0, 255), 2, 8, 0);
 			}
 		}
-	}
+
 	return imgTemp;
 }
 
@@ -293,7 +268,8 @@ int CircleDetection::findClosestCirlce(cv::Point2f calculatedPosition)
 	{
 		cv::Point2f circle(circles_[i][0], circles_[i][1]);
 		double distTemp = euclidianDistance(calculatedPosition, circle);
-		if (distTemp < distance && distTemp <= toleranceValueInPixels) 
+		distTemp = pixelsToMM(distTemp);
+		if (distTemp < distance && distTemp <= circlePositionTolerance_)
 		{
 			
 			distance = distTemp;
@@ -301,7 +277,7 @@ int CircleDetection::findClosestCirlce(cv::Point2f calculatedPosition)
 		}
 	}
 
-	std::cout << pixelsToMM(distance) << std::endl;
+	std::cout << distance << std::endl;
 	return indexOfClosestCircle;
 }
 
@@ -418,9 +394,6 @@ void CircleDetection::calculateExpectedCirclePositions()
 void CircleDetection::checkCircles()
 {
 
-	double bigCirlceSizeInPixels = mmToPixels(bigCirlceSize_);
-	double smallCirlceSizeinPixels = mmToPixels(smallCirlceSize_);
-	double toleranceValueInPixles = mmToPixels(circleSizeTolerance_);
 	bool horizontalOrientation = true;
 
 	// checking orientation of model
@@ -455,13 +428,14 @@ void CircleDetection::checkCircles()
 		{
 			int id = foundCircles2[i];
 			double radius = circles_[id][2];
-			if (radius - smallCirlceSizeinPixels <= toleranceValueInPixles / 2)
+			radius = pixelsToMM(radius);
+			double diff = abs(radius - smallCirlceSize_);
+			diff = diff*2;
+			if (diff <= circleSizeTolerance_)
 			{
-				correctCircles_[id] = true;
 				correctCenterCircles_[i] = true;
 			}
 			else {
-				correctCircles_[id] = false;
 				correctCenterCircles_[i] = false;
 				isCorrect_ = false;
 			}
@@ -485,86 +459,100 @@ void CircleDetection::checkCircles()
 	foundCircles.push_back(closestCirlceLeftButtom);
 
 
-
-
-
-
-
-	double  sizeLeftTop = bigCirlceSizeInPixels;
-	double sizeRightTop = smallCirlceSizeinPixels;
+	double circleSizes[4];
 
 	for (int i = 0; i < foundCircles.size(); i++) {
 		int id = foundCircles[i];
 		if (id == -1) {
-			correctOutsideCircles_[0] = false;
-			isCorrect_ = false;
-			continue;
-		}
-		double radius = circles_[id][2];
-		if (radius - bigCirlceSizeInPixels <= toleranceValueInPixles /2) {
-			if (i < 2) {
-				sizeLeftTop = bigCirlceSizeInPixels;
-				sizeRightTop = smallCirlceSizeinPixels;
-			}
-			else {
-				sizeLeftTop = smallCirlceSizeinPixels;
-				sizeRightTop = bigCirlceSizeInPixels;
-			}
-			break;
-		}
-
-		if (radius - smallCirlceSizeinPixels <= toleranceValueInPixles /2)
-		{
-			if (i < 2) {
-				sizeLeftTop = smallCirlceSizeinPixels;
-				sizeRightTop = bigCirlceSizeInPixels;
-			} 
-			else
-			{
-				sizeLeftTop = bigCirlceSizeInPixels;
-				sizeRightTop = smallCirlceSizeinPixels;
-			}
-			break;
-		}
-
-	}
-
-
-
-	for (int i = 0; i < foundCircles.size(); i++) {
-		int id = foundCircles[i];
-		if (id == -1) {
+			circleSizes[i] = -1;
 			correctOutsideCircles_[i] = false;
 			isCorrect_ = false;
 			continue;
 		}
 
 		double radius = circles_[id][2];
+		radius = pixelsToMM(radius);
+		double diffSmall = abs(radius - smallCirlceSize_);
+		diffSmall = diffSmall * 2;
 
 
-		if (i < 2) {
-			if (radius - sizeLeftTop <= toleranceValueInPixles /2)
-			{
-				correctCircles_[id] = true;
-			}
-			else
-			{
-				isCorrect_ = false;
-			}
+		double diffBig = abs(radius - bigCirlceSize_);
+		diffBig = diffBig * 2;
+
+		if (diffSmall <= circleSizeTolerance_)
+		{
+			circleSizes[i] = smallCirlceSize_;
 		}
-		else {
-			if (radius - sizeRightTop <= toleranceValueInPixles /2)
-			{
-				correctCircles_[id] = true;
-			}
-			else
-			{
-				isCorrect_ = false;
-			}
+		else if (diffBig <= circleSizeTolerance_)
+		{
+			circleSizes[i] = bigCirlceSize_;
 		}
-
+		else
+		{
+			circleSizes[i] = -1;
+			correctOutsideCircles_[i] = false;
+			isCorrect_ = false;
+		}
 	}
 
+	if (isCorrect_ == false)
+	{
+		return;
+	}
+
+	if (circleSizes[0] == circleSizes[1]) // top left == buttom right
+	{
+
+		if (circleSizes[2] == circleSizes[3]) //  top right == buttom left
+		{
+			if (circleSizes[0] == circleSizes[2]) // top right == top left
+			{// all are same size so mark top right and buttom left as wrong
+				correctOutsideCircles_[2] = false;
+				correctOutsideCircles_[3] = false;
+				isCorrect_ = false;
+			} 
+		} 
+		else
+		{ // top right and buttom left arent same size so check which is wrong
+			if (circleSizes[0] == circleSizes[2])
+			{
+				correctOutsideCircles_[2] = false;
+				isCorrect_ = false;
+			}
+			else
+			{
+				correctOutsideCircles_[3] = false;
+				isCorrect_ = false;
+			}
+		}
+	}
+	else // top left != buttom right
+	{
+		isCorrect_ = false;
+		if (circleSizes[2] != circleSizes[3]) // top right != buttom left
+		{ // mark all as false cause can't decide which is correct
+				correctOutsideCircles_[0] = false;
+				correctOutsideCircles_[1] = false;
+				correctOutsideCircles_[2] = false;
+				correctOutsideCircles_[3] = false;
+				isCorrect_ = false;
+		} 
+		else // top right == buttom left
+		{
+			if (circleSizes[0] != circleSizes[2]) // top left != top left
+			{
+				// therefor buttom right must be false
+				correctOutsideCircles_[1] = false;
+				isCorrect_ = false;
+			} 
+			else // top left == top right
+			{ // therefor top left must be false
+				correctOutsideCircles_[0] = false;
+				isCorrect_ = false;
+
+			}
+		}
+	}
 }
 
 

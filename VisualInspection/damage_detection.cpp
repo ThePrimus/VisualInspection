@@ -105,7 +105,7 @@ int clusters(Mat* in, Mat* out, int min_size) {
 			boundedRect.y -= 10;
 			boundedRect.width += 20;
 			boundedRect.height += 20;
-			rectangle(*out, boundedRect, Vec3b(0, 255, 0), 2);
+			rectangle(*out, boundedRect, Scalar(0, 0, 255), 2);
 			cluster_count++;
 		}
 			
@@ -114,7 +114,7 @@ int clusters(Mat* in, Mat* out, int min_size) {
 	return cluster_count;
 }
 
-bool broken_bridge(Mat* image, RotatedRect rect) {
+bool broken_bridge(Mat* in, Mat* out, RotatedRect rect) {
 	RotatedRect bridgeArea = RotatedRect(rect.center, Point2f(15, 15), rect.angle);
 
 	// matrices we'll use
@@ -129,7 +129,7 @@ bool broken_bridge(Mat* image, RotatedRect rect) {
 	// get the rotation matrix
 	M = getRotationMatrix2D(bridgeArea.center, angle, 1.0);
 	// perform the affine transformation
-	warpAffine(*image, rotated, M, image->size(), INTER_CUBIC);
+	warpAffine(*in, rotated, M, in->size(), INTER_CUBIC);
 	// crop the resulting image
 	getRectSubPix(rotated, rect_size, bridgeArea.center, bridge);
 	
@@ -148,60 +148,50 @@ bool broken_bridge(Mat* image, RotatedRect rect) {
 		cout << "steg kaputt!" << endl;
 		//draw error rect
 		Rect errorRect = Rect(Point2f(rect.center.x - 20, rect.center.y - 20), Size2f(40,40));
-		rectangle(*image, errorRect, Scalar(0, 255, 0), 2);
+		rectangle(*out, errorRect, Scalar(0, 0, 255), 2);
 		return true;
 	}
 	else
 		return false;
 }
 
-bool detect_damage(Mat* image, RotatedRect rect, vector<Vec3f> circles, int threshold, int min_cluster_size, int rectangle_line_size, int radius_extension) {
+bool detect_damage(Mat* in, Mat* out, RotatedRect rect, vector<Vec3f> circles, int threshold, int min_cluster_size, int rectangle_line_size, int radius_extension) {
 	Mat workpiece, workpiece_filter, workpiece_canny, workpiece_dilate, output_image;
 	bool error = false;
-
-	image->convertTo(workpiece_filter, -1, 1.5, 0);
-	image->convertTo(workpiece, -1, 1.5, 0);
+	cvtColor(*in, *out, CV_GRAY2RGB);
+	in->convertTo(workpiece_filter, -1, 1.5, 0);
+	in->convertTo(workpiece, -1, 1.5, 0);
 
 	//namedWindow("brightness", WINDOW_NORMAL);
 	//imshow("brightness", workpiece);
 
-	error = broken_bridge(&workpiece, rect);
+	error = broken_bridge(&workpiece, out, rect);
 
 	//GaussianBlur(workpiece_filter, workpiece_filter, Size(7,7), 10);
 	guided_filter(workpiece_filter, &workpiece_filter);
 
+	cv::threshold(workpiece_filter, workpiece_filter, 65, 0, THRESH_TOZERO);
 
-	namedWindow("filter", WINDOW_NORMAL);
-	imshow("filter", workpiece_filter);
 
-	/*
-	//draw rectangle (testing)
-	Mat rectangle;
-	image->copyTo(rectangle);
+	//namedWindow("filter", WINDOW_NORMAL);
+	//imshow("filter", workpiece_filter);
 
-	Point2f points[4];
-	rect.points(points);
-	for (int i = 0; i < 4; i++) {
-		line(rectangle, points[i], points[(i + 1) % 4], Scalar(255, 255, 255), 2);
-	}
-	
-	namedWindow("rectangle", WINDOW_NORMAL);
-	imshow("rectangle", rectangle);*/
-
-	
 
 	canny_detection(&workpiece_filter, &workpiece_canny, threshold);
-	namedWindow("canny", WINDOW_NORMAL);
-	imshow("canny", workpiece_canny);
+	//namedWindow("canny", WINDOW_NORMAL);
+	//imshow("canny", workpiece_canny);
 
 	remove_edges(workpiece_canny, &workpiece_canny, rect, rectangle_line_size);
 
 	remove_circles(workpiece_canny, &workpiece_canny, circles, radius_extension);
 
-	namedWindow("removed", WINDOW_NORMAL);
-	imshow("removed", workpiece_canny);
+	//namedWindow("removed", WINDOW_NORMAL);
+	//imshow("removed", workpiece_canny);
 
-	int errors = clusters(&workpiece_canny, image, min_cluster_size);
+	int errors = clusters(&workpiece_canny, out, min_cluster_size);
+	//namedWindow("out", WINDOW_NORMAL);
+	//imshow("out", output_image);
+	//in = &output_image;
 
 	if (errors > 0)
 		error = true;
