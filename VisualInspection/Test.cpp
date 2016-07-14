@@ -219,7 +219,7 @@ void test_image(Mat img, bool show) {
 	//quad detection
 	Mat workpiece = img;
 	Mat output_damage;
-	result_quad_detect = detect_quad(workpiece, 0.25, 2, 50, 8, &rect, &contour);
+	result_quad_detect = detect_quad(workpiece, 0.2, 2, 50, 8, &rect, &contour);
 
 	if (result_quad_detect || check_everything) {
 
@@ -239,7 +239,8 @@ void test_image(Mat img, bool show) {
 
 		if (result_circle_detection || check_everything) {
 			//damage detection
-			bool result_damage_detection = !detect_damage(&workpiece, &output_damage, rect, circles, 80, 30, 30, 25);
+			bool temp = detect_damage(&workpiece, &output_damage, rect, circles, 80, 30, 30, 25);
+			result_damage_detection = !temp;
 		}
 	}
 
@@ -376,6 +377,7 @@ void callBackFunc(int event, int x, int y, int flags, void* userdata) {
 
 			PX2CM = calibrate_px2cm(image_to_test, 2.0);
 			if (PX2CM > 0) {
+				std::cout << "Calibrated with px2cm = " << PX2CM << std::endl;
 				IS_CALIBRATED = true;
 			}
 			else {

@@ -10,10 +10,10 @@ bool correctOutsideCircles_[4] = { true, true, true, true };
 
 CircleDetection::CircleDetection()
 {
-	bigCirlceSize_ = 7 / 2; // in mm
-	smallCirlceSize_ = 5 / 2; // in mm
-	circleSizeTolerance_ = 1.5; // in mm
-	circlePositionTolerance_ = 2; // in mm
+	bigCirlceSize_ = 7 / 2.0f; // in mm
+	smallCirlceSize_ = 5 / 2.0f; // in mm
+	circleSizeTolerance_ = 1.5f; // 1.5 // in mm
+	circlePositionTolerance_ = 2.0f; // 2.0f // in mm
 	circleAmount_ = 6;
 	isVertical_ = false;
 }
@@ -73,7 +73,7 @@ void CircleDetection::findCircles()
 
 
 	//oben rechts
-	thresholdValue = 60; //60
+	thresholdValue = 40; //60
 	masking(outsideCircles_[2], thresholdValue, minSizeCircles, maxSizeCircles, minDist, mmMask);
 
 	// unten links
@@ -333,31 +333,6 @@ void CircleDetection::calculateExpectedCirclePositions()
 	outsideCircles_.push_back(pos);
 
 
-	// matrices we'll use
-	Mat M, rotated, bridge, bridgeThreshold;
-	// get angle and size from the bounding box
-	float angle = rotetedRect_.angle;
-	Size rect_size = rotetedRect_.size;
-	if (rotetedRect_.angle < -45.) {
-		angle += 90.0;
-		swap(rect_size.width, rect_size.height);
-	}
-	// get the rotation matrix
-	M = getRotationMatrix2D(rotetedRect_.center, angle, 1.0);
-	// perform the affine transformation
-	warpAffine(img_, rotated, M, img_.size(), INTER_CUBIC);
-	// crop the resulting image
-	getRectSubPix(rotated, rect_size, rotetedRect_.center, bridge);
-
-
-	double pixels = mmToPixels(10);
-	pos =  cv::Point2f(pixels, pixels);
-
-	cv::circle(bridge, pos, 3, cv::Scalar(255, 255, 255), -1, 8, 0);
-	//cv::namedWindow("rotated", CV_WINDOW_NORMAL);
-	//cv::imshow("rotated", bridge);
-
-
 	//buttom right
 	pos = getPositionOfOuterCircle(rotetedRect_.center, vertices[br]); // 0 // 3
 	outsideCircles_.push_back(pos);
@@ -397,9 +372,14 @@ void CircleDetection::checkCircles()
 	bool horizontalOrientation = true;
 
 	// checking orientation of model
+	std::cout << "Detected Distances: " << std::endl;
+	std::cout << "Center Top: ";
 	int closestCirlceTop = findClosestCirlce(centralCircles_[0]);
+	std::cout << "Center Buttom: ";
 	int closestCirlceButtom = findClosestCirlce(centralCircles_[1]);
+	std::cout << "Center Left: ";
 	int closestCirlceLeft = findClosestCirlce(centralCircles_[2]);
+	std::cout << "Center Right: ";
 	int closestCirlceRight = findClosestCirlce(centralCircles_[3]);
 
 	int start = 0;
@@ -447,9 +427,13 @@ void CircleDetection::checkCircles()
 
 	}
 
+	std::cout << "Top Left: ";
 	int closestCirlceLeftTop = findClosestCirlce(outsideCircles_[0]);
+	std::cout << "Buttom Right: ";
 	int closestCirlceRightButtom = findClosestCirlce(outsideCircles_[1]);
+	std::cout << "Top Right: ";
 	int closestCirlceRightTop = findClosestCirlce(outsideCircles_[2]);
+	std::cout << "Buttom Left: " ;
 	int closestCirlceLeftButtom = findClosestCirlce(outsideCircles_[3]);
 
 	std::vector<int> foundCircles;
@@ -479,7 +463,7 @@ void CircleDetection::checkCircles()
 		double diffBig = abs(radius - bigCirlceSize_);
 		diffBig = diffBig * 2;
 
-		if (diffSmall <= circleSizeTolerance_)
+		if (diffSmall <= circleSizeTolerance_ && diffSmall <= diffBig)
 		{
 			circleSizes[i] = smallCirlceSize_;
 		}
@@ -495,6 +479,19 @@ void CircleDetection::checkCircles()
 		}
 	}
 
+	std::cout << "Detected sizes: " << std::endl;
+	if (closestCirlceLeftTop != -1) {
+	std::cout << "Top Left: " << circleSizes[0] << " Radius: " << pixelsToMM(circles_[closestCirlceLeftTop][2]) << std::endl;
+	}
+	if (closestCirlceRightButtom != -1) {
+	std::cout << "Buttom Rright: " << circleSizes[1] << " Radius: " << pixelsToMM(circles_[closestCirlceRightButtom][2] ) << std::endl;
+	}
+	if (closestCirlceRightTop != -1) {
+	std::cout << "Top Right: " << circleSizes[2] << " Radius: " << pixelsToMM(circles_[closestCirlceRightTop][2] ) << std::endl;
+	}
+	if (closestCirlceLeftButtom != -1) {
+	std::cout << "Buttom Left: " << circleSizes[3] << " Radius: " << pixelsToMM(circles_[closestCirlceLeftButtom][2]) << std::endl;
+	}
 	if (isCorrect_ == false)
 	{
 		return;
@@ -553,6 +550,7 @@ void CircleDetection::checkCircles()
 			}
 		}
 	}
+
 }
 
 

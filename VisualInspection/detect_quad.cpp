@@ -60,14 +60,8 @@ Mat image_preprocessing(Mat img) {
 	Mat result;
 
 	img.convertTo(result, -1, 1.5, 0);
-	cv::threshold(result, result, 200, 0, THRESH_TOZERO_INV);
-	//cv::namedWindow("test", WINDOW_NORMAL);
-	//cv::imshow("test", result);
-	//waitKey(0);
-
+	//cv::threshold(result, result, 200, 0, THRESH_TOZERO_INV);
 	cv::threshold(result, result, 70, 255, THRESH_BINARY);
-	//cv::imshow(window_name, result);
-	//waitKey(0);
 
 	int erosion_size = 3;
 	Mat element = getStructuringElement(MORPH_RECT,
@@ -76,32 +70,19 @@ Mat image_preprocessing(Mat img) {
 
 	/// Apply the erosion operation
 	erode(result, result, element);
-	//imshow(window_name, result);
-	//waitKey(0);
 
-
-
-	//blur(img, img, Size(3, 3));
-	//cv::imshow("test", img);
-	//waitKey(0);
-	
 	int dilation_size = 2;
 	element = getStructuringElement(MORPH_RECT,
 	Size(2 * dilation_size + 1, 2 * dilation_size + 1),
 	Point(dilation_size, dilation_size));
 	/// Apply the dilation operation
 	dilate(result, result, element);
-	//cv::imshow(window_name, result);
-	//waitKey(0);
 	
 
 	/// Detect edges using canny
 	auto tresh = 100;
 	Mat canny_result;
 	Canny(result, canny_result, tresh, tresh * 2, 3);
-	
-	//cv::imshow(window_name, result);
-	//waitKey(0);
 
 	return canny_result;
 }
