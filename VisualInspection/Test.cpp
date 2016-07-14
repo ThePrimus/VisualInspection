@@ -31,9 +31,8 @@ double PX2CM = 0.00664624;
 const bool test_from_filepath = false;
 const bool test_test_routine = false;
 //const string filepath = "Images/Neue Beleuchtung/Perfekt3.png"; 
-//const string filepath = "Images/Neue Beleuchtung/Perfekt2.png";
+const string filepath = "Images/Neue Beleuchtung/Perfekt2.png";
 //const string filepath = "Images/Neue Beleuchtung/circles_test.png";
-const string filepath = "Renderings/Perfekt3.png";
 const string calibration_image = "Images/Neue Beleuchtung/Kalibrierung1.png";
 const double calibration_value = 2.0;
 const string IMAGE_FOLDER = "./Images/Neue Beleuchtung/resized";
@@ -214,7 +213,7 @@ void test_image(Mat img, bool show) {
 	bool result_circle_detection = false;
 	bool result_damage_detection = false;
 
-	bool check_everything = false;
+	bool check_everything = true;
 
 	//quad detection
 	Mat workpiece = img;
@@ -239,8 +238,7 @@ void test_image(Mat img, bool show) {
 
 		if (result_circle_detection || check_everything) {
 			//damage detection
-			bool temp = detect_damage(&workpiece, &output_damage, rect, circles, 80, 30, 30, 25);
-			result_damage_detection = !temp;
+			result_damage_detection = !detect_damage(&workpiece, &output_damage, rect, circles, 80, 30, 30, 25);
 		}
 	}
 

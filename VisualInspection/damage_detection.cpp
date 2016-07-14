@@ -156,39 +156,49 @@ bool broken_bridge(Mat* in, Mat* out, RotatedRect rect) {
 }
 
 bool detect_damage(Mat* in, Mat* out, RotatedRect rect, vector<Vec3f> circles, int threshold, int min_cluster_size, int rectangle_line_size, int radius_extension) {
-	Mat workpiece, workpiece_filter, workpiece_canny, workpiece_dilate, output_image;
+	Mat workpiece, masked_workpiece, output_image, mask;
 	bool error = false;
 	cvtColor(*in, *out, CV_GRAY2RGB);
-	in->convertTo(workpiece_filter, -1, 1.5, 0);
 	in->convertTo(workpiece, -1, 1.5, 0);
+	//in->convertTo(workpiece, -1, 1.5, 0);
 
-	//namedWindow("brightness", WINDOW_NORMAL);
-	//imshow("brightness", workpiece);
+	mask = Mat(workpiece.rows, workpiece.cols, workpiece.type(), Scalar(0));
+	Point2f points[4];
+	rect.points(points);
+	vector<Point> vertices;
+	for (int i = 0; i < 4; i++) {
+		vertices.push_back(points[i]);
+	}
+	fillConvexPoly(mask, vertices, Scalar(255));
+	workpiece.copyTo(masked_workpiece, mask);
 
-	error = broken_bridge(&workpiece, out, rect);
+	//namedWindow("mask", WINDOW_NORMAL);
+	//imshow("mask", masked_workpiece);
+
+	error = broken_bridge(&masked_workpiece, out, rect);
 
 	//GaussianBlur(workpiece_filter, workpiece_filter, Size(7,7), 10);
-	guided_filter(workpiece_filter, &workpiece_filter);
+	guided_filter(masked_workpiece, &masked_workpiece);
 
-	cv::threshold(workpiece_filter, workpiece_filter, 65, 0, THRESH_TOZERO);
+	cv::threshold(masked_workpiece, masked_workpiece, 65, 0, THRESH_TOZERO);
 
 
 	//namedWindow("filter", WINDOW_NORMAL);
-	//imshow("filter", workpiece_filter);
+	//imshow("filter", masked_workpiece);
 
 
-	canny_detection(&workpiece_filter, &workpiece_canny, threshold);
+	canny_detection(&masked_workpiece, &masked_workpiece, threshold);
 	//namedWindow("canny", WINDOW_NORMAL);
-	//imshow("canny", workpiece_canny);
+	//imshow("canny", masked_workpiece);
 
-	remove_edges(workpiece_canny, &workpiece_canny, rect, rectangle_line_size);
+	remove_edges(masked_workpiece, &masked_workpiece, rect, rectangle_line_size);
 
-	remove_circles(workpiece_canny, &workpiece_canny, circles, radius_extension);
+	remove_circles(masked_workpiece, &masked_workpiece, circles, radius_extension);
 
 	//namedWindow("removed", WINDOW_NORMAL);
-	//imshow("removed", workpiece_canny);
+	//imshow("removed", masked_workpiece);
 
-	int errors = clusters(&workpiece_canny, out, min_cluster_size);
+	int errors = clusters(&masked_workpiece, out, min_cluster_size);
 	//namedWindow("out", WINDOW_NORMAL);
 	//imshow("out", output_image);
 	//in = &output_image;
