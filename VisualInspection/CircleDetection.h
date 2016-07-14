@@ -31,7 +31,6 @@ public:
 
 private:
 	bool isVertical_;
-	std::vector<bool> correctCircles_;
 	bool isCorrect_;
 	int circleAmount_;
 	double pixelConversion_;
