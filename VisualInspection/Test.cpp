@@ -70,7 +70,7 @@ const string test_button_inactive_path = "GUI/test_button_inactive.png";
 const string calibrate_button_path = "GUI/calibrate_button.png";
 const string exit_button_path = "GUI/exit_button.png";
 const string new_image_button_path = "GUI/new_image_button.png";
-const string x_symbol_path = "GUI/x_symbol.png";
+const string x_symbol_path = "GUI/x_symbol.jpg";
 const string check_mark_path = "GUI/haekchen_symbol.png";
 
 bool exit_program = false;
@@ -82,7 +82,7 @@ bool overall_result = false;
 int main(int argc, char* argv[]) {
 
 	//GUI
-	gui = Mat3b(600, 1005, Vec3b(250, 250, 250));
+	gui = Mat3b(600, 1005, Vec3b(255, 255, 255));
 	calibrate_button = Rect(10, 10, 200, 40);
 	test_button = Rect(10, 55, 200, 40);
 	exit_button = Rect(10, 550, 200, 40);
@@ -213,7 +213,7 @@ void test_image(Mat img, bool show) {
 	bool result_circle_detection = false;
 	bool result_damage_detection = false;
 
-	bool check_everything = true;
+	bool check_everything = false;
 
 	//quad detection
 	Mat workpiece = img;
@@ -375,7 +375,7 @@ void callBackFunc(int event, int x, int y, int flags, void* userdata) {
 
 			PX2CM = calibrate_px2cm(image_to_test, 2.0);
 			if (PX2CM > 0) {
-				std::cout << "Calibrated with px2cm = " << PX2CM << std::endl;
+				//std::cout << "Calibrated with px2cm = " << PX2CM << std::endl;
 				IS_CALIBRATED = true;
 			}
 			else {

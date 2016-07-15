@@ -277,7 +277,7 @@ int CircleDetection::findClosestCirlce(cv::Point2f calculatedPosition)
 		}
 	}
 
-	std::cout << distance << std::endl;
+//	std::cout << distance << std::endl;
 	return indexOfClosestCircle;
 }
 
@@ -372,14 +372,14 @@ void CircleDetection::checkCircles()
 	bool horizontalOrientation = true;
 
 	// checking orientation of model
-	std::cout << "Detected Distances: " << std::endl;
-	std::cout << "Center Top: ";
+	//std::cout << "Detected Distances: " << std::endl;
+	//std::cout << "Center Top: ";
 	int closestCirlceTop = findClosestCirlce(centralCircles_[0]);
-	std::cout << "Center Buttom: ";
+	//std::cout << "Center Buttom: ";
 	int closestCirlceButtom = findClosestCirlce(centralCircles_[1]);
-	std::cout << "Center Left: ";
+	//std::cout << "Center Left: ";
 	int closestCirlceLeft = findClosestCirlce(centralCircles_[2]);
-	std::cout << "Center Right: ";
+	//std::cout << "Center Right: ";
 	int closestCirlceRight = findClosestCirlce(centralCircles_[3]);
 
 	int start = 0;
@@ -427,13 +427,13 @@ void CircleDetection::checkCircles()
 
 	}
 
-	std::cout << "Top Left: ";
+	//std::cout << "Top Left: ";
 	int closestCirlceLeftTop = findClosestCirlce(outsideCircles_[0]);
-	std::cout << "Buttom Right: ";
+	//std::cout << "Buttom Right: ";
 	int closestCirlceRightButtom = findClosestCirlce(outsideCircles_[1]);
-	std::cout << "Top Right: ";
+	//std::cout << "Top Right: ";
 	int closestCirlceRightTop = findClosestCirlce(outsideCircles_[2]);
-	std::cout << "Buttom Left: " ;
+	//std::cout << "Buttom Left: " ;
 	int closestCirlceLeftButtom = findClosestCirlce(outsideCircles_[3]);
 
 	std::vector<int> foundCircles;
@@ -478,7 +478,7 @@ void CircleDetection::checkCircles()
 			isCorrect_ = false;
 		}
 	}
-
+	/*
 	std::cout << "Detected sizes: " << std::endl;
 	if (closestCirlceLeftTop != -1) {
 	std::cout << "Top Left: " << circleSizes[0] << " Radius: " << pixelsToMM(circles_[closestCirlceLeftTop][2]) << std::endl;
@@ -492,6 +492,7 @@ void CircleDetection::checkCircles()
 	if (closestCirlceLeftButtom != -1) {
 	std::cout << "Buttom Left: " << circleSizes[3] << " Radius: " << pixelsToMM(circles_[closestCirlceLeftButtom][2]) << std::endl;
 	}
+	*/
 	if (isCorrect_ == false)
 	{
 		return;

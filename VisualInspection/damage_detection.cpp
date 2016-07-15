@@ -132,11 +132,13 @@ bool broken_bridge(Mat* in, Mat* out, RotatedRect rect) {
 	warpAffine(*in, rotated, M, in->size(), INTER_CUBIC);
 	// crop the resulting image
 	getRectSubPix(rotated, rect_size, bridgeArea.center, bridge);
+
+	//namedWindow("bridge", WINDOW_NORMAL);
+	//imshow("bridge", bridge);
 	
 	threshold(bridge, bridgeThreshold, 50, 255, THRESH_BINARY);
 
-	//namedWindow("bridge", WINDOW_NORMAL);
-	//imshow("bridge", bridgeThreshold);
+
 
 
 	int whitePixel = (int)sum(bridgeThreshold)[0] / 255;
@@ -180,11 +182,13 @@ bool detect_damage(Mat* in, Mat* out, RotatedRect rect, vector<Vec3f> circles, i
 	//GaussianBlur(workpiece_filter, workpiece_filter, Size(7,7), 10);
 	guided_filter(masked_workpiece, &masked_workpiece);
 
+	//namedWindow("filter", WINDOW_NORMAL);
+	//imshow("filter", masked_workpiece);
+
 	cv::threshold(masked_workpiece, masked_workpiece, 65, 0, THRESH_TOZERO);
 
 
-	//namedWindow("filter", WINDOW_NORMAL);
-	//imshow("filter", masked_workpiece);
+
 
 
 	canny_detection(&masked_workpiece, &masked_workpiece, threshold);

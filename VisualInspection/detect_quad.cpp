@@ -48,7 +48,7 @@ bool check_quad_size(const RotatedRect& rect, const double px2cm, const double t
 		auto length_px = sqrt(diff_p.x * diff_p.x + diff_p.y * diff_p.y);
 		auto length_cm = length_px * px2cm;
 		auto abs_length_diff = abs(length_cm - side_length);
-		std::cout << "detect rect length difference: " << abs_length_diff << std::endl;
+		//std::cout << "detect rect length difference: " << abs_length_diff << std::endl;
 		if (abs_length_diff > thresh_accuracy) {
 			return false;
 		}
