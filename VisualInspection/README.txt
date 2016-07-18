@@ -1,13 +1,15 @@
-Benötigt werden OpenCV 3.1, IDS uEye SDK, IDS UI-1460SE-C-HG Treiber und Visual Studio 15
+BenÃ¶tigt werden OpenCV 3.1, IDS uEye SDK, IDS UI-1460SE-C-HG Treiber und Visual Studio 15. ZusÃ¤tzlich wird ein Windows 64bit System benÃ¶tigt
 
 1) Installation OpenCV:
 -Installationspfad: C:\opencv
 -Umgebungsvariablen setzen
-
+  - Unter Variable "Pfad" muss "C:\opencv\build\x64\vc14\bin" hinzufÃ¼gt werden
+  - Ggf. neue Systemvariable anlegen. Namens "OPENCV_DIR" mit Wert "C:\opencv\build\x64\vc14" hinzufÃ¼gen
+  
 2) Installation IDS uEye SDK und IDS UI-1460SE-C-HG Treiber
 
 3) Bedienung:
 -Programm in Visual Studio 2015 starten
--Kalibrierungsstück unter die Kamera legen und "Calibrate" drücken
--Das zu testende Werkstück unter die Kamera legan und "Test" drücken
--Für weitere Überprüfungen auf "New Image" drücken
+-KalibrierungsstÃ¼ck unter die Kamera legen und "Calibrate" drÃ¼cken
+-Das zu testende WerkstÃ¼ck unter die Kamera legen und "Test" drÃ¼cken
+-FÃ¼r weitere ÃœberprÃ¼fungen auf "New Image" drÃ¼cken
